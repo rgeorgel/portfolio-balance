@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Balance - Alocações</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Portfolio Balance</h1>
+            <nav>
+                <a href="index.html">Dashboard</a>
+                <a href="allocations.html" class="active">Alocações</a>
+                <a href="investments.html">Investimentos</a>
+                <a href="calculator.html">Calculadora</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="allocations-section">
+                <h2>Configurar Alocações</h2>
+                <p class="description">Defina a porcentagem de alocação desejada para cada tipo de investimento. O total deve somar 100%.</p>
+
+                <form id="allocationsForm">
+                    <div id="allocationInputs" class="allocation-inputs">
+                        <!-- Allocation inputs will be inserted here -->
+                    </div>
+
+                    <div class="form-footer">
+                        <div class="total-allocation">
+                            <strong>Total: <span id="totalAllocation">0</span>%</strong>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar Alocações</button>
+                    </div>
+                </form>
+
+                <div id="message" class="message"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/allocations.js"></script>
+</body>
+</html>

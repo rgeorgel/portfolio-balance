@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Balance - Calculadora</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Portfolio Balance</h1>
+            <nav>
+                <a href="index.html">Dashboard</a>
+                <a href="allocations.html">Alocações</a>
+                <a href="investments.html">Investimentos</a>
+                <a href="calculator.html" class="active">Calculadora</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="calculator-section">
+                <h2>Calculadora de Balanceamento</h2>
+                <p class="description">Informe quanto deseja investir e veja como distribuir o valor entre seus investimentos.</p>
+
+                <div class="calculator-input">
+                    <form id="calculatorForm">
+                        <div class="form-group">
+                            <label for="newInvestmentAmount">Valor a Investir*</label>
+                            <input type="number" id="newInvestmentAmount" step="0.01" min="0.01" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Calcular Distribuição</button>
+                    </form>
+                </div>
+
+                <div id="calculationResults" class="calculation-results" style="display: none;">
+                    <h3>Resultado do Balanceamento</h3>
+
+                    <div class="summary">
+                        <div class="summary-item">
+                            <span class="label">Valor Total Atual:</span>
+                            <span class="value" id="currentTotal">R$ 0,00</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Novo Investimento:</span>
+                            <span class="value" id="newInvestment">R$ 0,00</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Total Após Investimento:</span>
+                            <span class="value" id="totalAfter">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <div id="allocationResults" class="allocation-results">
+                        <!-- Allocation results will be inserted here -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/calculator.js"></script>
+</body>
+</html>

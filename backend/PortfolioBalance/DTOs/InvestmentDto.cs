@@ -1,0 +1,26 @@
+namespace PortfolioBalance.DTOs;
+
+public class InvestmentDto
+{
+    public int Id { get; set; }
+    public int InvestmentTypeId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public decimal CurrentValue { get; set; }
+    public decimal Weight { get; set; }
+    public DateTime CreatedDate { get; set; }
+}
+
+public class CreateInvestmentDto
+{
+    public int InvestmentTypeId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public decimal CurrentValue { get; set; }
+    public decimal Weight { get; set; } = 1.0m;
+}
+
+public class UpdateInvestmentDto
+{
+    public string Name { get; set; } = string.Empty;
+    public decimal CurrentValue { get; set; }
+    public decimal Weight { get; set; }
+}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Balance - Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Portfolio Balance</h1>
+            <nav>
+                <a href="index.html" class="active">Dashboard</a>
+                <a href="allocations.html">Alocações</a>
+                <a href="investments.html">Investimentos</a>
+                <a href="calculator.html">Calculadora</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="dashboard-summary">
+                <h2>Resumo do Portfólio</h2>
+                <div class="summary-cards">
+                    <div class="card">
+                        <h3>Valor Total</h3>
+                        <p class="value" id="totalValue">R$ 0,00</p>
+                    </div>
+                    <div class="card">
+                        <h3>Tipos de Investimento</h3>
+                        <p class="value" id="totalTypes">5</p>
+                    </div>
+                    <div class="card">
+                        <h3>Total de Investimentos</h3>
+                        <p class="value" id="totalInvestments">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="allocation-overview">
+                <h2>Alocação Atual</h2>
+                <div id="allocationChart" class="chart-container">
+                    <!-- Allocation bars will be inserted here -->
+                </div>
+            </section>
+
+            <section class="recent-investments">
+                <h2>Investimentos Recentes</h2>
+                <div id="recentInvestments" class="investments-list">
+                    <!-- Recent investments will be inserted here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
