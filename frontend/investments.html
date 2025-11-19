@@ -65,8 +65,21 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="unitValue">Valor Unitário</label>
+                    <input type="number" id="unitValue" step="0.01" min="0">
+                    <small>Opcional: Preencha junto com a quantidade para calcular o valor total automaticamente</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity">Quantidade</label>
+                    <input type="number" id="quantity" step="0.0001" min="0">
+                    <small>Opcional: Preencha junto com o valor unitário para calcular o valor total automaticamente</small>
+                </div>
+
+                <div class="form-group">
                     <label for="investmentValue">Valor Atual*</label>
                     <input type="number" id="investmentValue" step="0.01" min="0" required>
+                    <small id="calculatedNote" style="display: none; color: #28a745;">Calculado automaticamente (Valor Unitário × Quantidade)</small>
                 </div>
 
                 <div class="form-group">

@@ -112,6 +112,23 @@ function renderInvestmentsTable() {
     container.innerHTML = tableHtml;
 }
 
+function calculateInvestmentValue() {
+    const unitValue = parseFloat(document.getElementById('unitValue').value) || 0;
+    const quantity = parseFloat(document.getElementById('quantity').value) || 0;
+    const investmentValueField = document.getElementById('investmentValue');
+    const calculatedNote = document.getElementById('calculatedNote');
+
+    if (unitValue > 0 && quantity > 0) {
+        const total = unitValue * quantity;
+        investmentValueField.value = total.toFixed(2);
+        investmentValueField.readOnly = true;
+        calculatedNote.style.display = 'block';
+    } else {
+        investmentValueField.readOnly = false;
+        calculatedNote.style.display = 'none';
+    }
+}
+
 function openModal(investmentId = null) {
     const modal = document.getElementById('investmentModal');
     const form = document.getElementById('investmentForm');
@@ -119,6 +136,8 @@ function openModal(investmentId = null) {
 
     form.reset();
     document.getElementById('investmentId').value = '';
+    document.getElementById('investmentValue').readOnly = false;
+    document.getElementById('calculatedNote').style.display = 'none';
 
     if (investmentId) {
         // Edit mode
@@ -130,6 +149,19 @@ function openModal(investmentId = null) {
             document.getElementById('investmentName').value = investment.name;
             document.getElementById('investmentValue').value = investment.currentValue;
             document.getElementById('investmentWeight').value = investment.weight;
+
+            // Load unit value and quantity if available
+            if (investment.unitValue !== null && investment.unitValue !== undefined) {
+                document.getElementById('unitValue').value = investment.unitValue;
+            }
+            if (investment.quantity !== null && investment.quantity !== undefined) {
+                document.getElementById('quantity').value = investment.quantity;
+            }
+
+            // Trigger calculation if both values are present
+            if (investment.unitValue && investment.quantity) {
+                calculateInvestmentValue();
+            }
         }
     } else {
         // Add mode
@@ -149,12 +181,23 @@ async function handleFormSubmit(event) {
     event.preventDefault();
 
     const investmentId = document.getElementById('investmentId').value;
+    const unitValue = document.getElementById('unitValue').value;
+    const quantity = document.getElementById('quantity').value;
+
     const data = {
         investmentTypeId: parseInt(document.getElementById('investmentType').value),
         name: document.getElementById('investmentName').value,
         currentValue: parseFloat(document.getElementById('investmentValue').value),
         weight: parseFloat(document.getElementById('investmentWeight').value)
     };
+
+    // Add unit value and quantity if provided
+    if (unitValue !== '' && unitValue !== null) {
+        data.unitValue = parseFloat(unitValue);
+    }
+    if (quantity !== '' && quantity !== null) {
+        data.quantity = parseFloat(quantity);
+    }
 
     try {
         let response;
@@ -224,11 +267,17 @@ document.addEventListener('DOMContentLoaded', () => {
         loadInvestments();
     });
 
-    // Close modal when clicking outside
-    window.addEventListener('click', (event) => {
-        const modal = document.getElementById('investmentModal');
-        if (event.target === modal) {
-            closeModal();
+    // Add event listeners for automatic calculation
+    document.getElementById('unitValue').addEventListener('input', calculateInvestmentValue);
+    document.getElementById('quantity').addEventListener('input', calculateInvestmentValue);
+
+    // Close modal when pressing Esc key
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            const modal = document.getElementById('investmentModal');
+            if (modal.style.display === 'block') {
+                closeModal();
+            }
         }
     });
 });

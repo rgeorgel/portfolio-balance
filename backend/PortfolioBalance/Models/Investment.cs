@@ -7,6 +7,8 @@ public class Investment
     public int InvestmentTypeId { get; set; }
     public string Name { get; set; } = string.Empty;
     public decimal CurrentValue { get; set; }
+    public decimal? UnitValue { get; set; }
+    public decimal? Quantity { get; set; }
     public decimal Weight { get; set; } = 1.0m;
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 

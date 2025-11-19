@@ -45,6 +45,8 @@ public class InvestmentsController : ControllerBase
                 InvestmentTypeId = i.InvestmentTypeId,
                 Name = i.Name,
                 CurrentValue = i.CurrentValue,
+                UnitValue = i.UnitValue,
+                Quantity = i.Quantity,
                 Weight = i.Weight,
                 CreatedDate = i.CreatedDate
             })
@@ -70,6 +72,8 @@ public class InvestmentsController : ControllerBase
                 InvestmentTypeId = i.InvestmentTypeId,
                 Name = i.Name,
                 CurrentValue = i.CurrentValue,
+                UnitValue = i.UnitValue,
+                Quantity = i.Quantity,
                 Weight = i.Weight,
                 CreatedDate = i.CreatedDate
             })
@@ -105,6 +109,8 @@ public class InvestmentsController : ControllerBase
             InvestmentTypeId = dto.InvestmentTypeId,
             Name = dto.Name,
             CurrentValue = dto.CurrentValue,
+            UnitValue = dto.UnitValue,
+            Quantity = dto.Quantity,
             Weight = dto.Weight,
             CreatedDate = DateTime.UtcNow
         };
@@ -118,6 +124,8 @@ public class InvestmentsController : ControllerBase
             InvestmentTypeId = investment.InvestmentTypeId,
             Name = investment.Name,
             CurrentValue = investment.CurrentValue,
+            UnitValue = investment.UnitValue,
+            Quantity = investment.Quantity,
             Weight = investment.Weight,
             CreatedDate = investment.CreatedDate
         };
@@ -143,6 +151,8 @@ public class InvestmentsController : ControllerBase
 
         investment.Name = dto.Name;
         investment.CurrentValue = dto.CurrentValue;
+        investment.UnitValue = dto.UnitValue;
+        investment.Quantity = dto.Quantity;
         investment.Weight = dto.Weight;
 
         await _context.SaveChangesAsync();
