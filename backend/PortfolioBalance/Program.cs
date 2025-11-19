@@ -30,6 +30,23 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Ensure database is created and seeded
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<PortfolioDbContext>();
+        context.Database.EnsureCreated();
+        Console.WriteLine("Database schema created successfully.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"An error occurred while creating the database: {ex.Message}");
+        throw;
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
