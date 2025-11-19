@@ -19,6 +19,7 @@ builder.Services.AddDbContext<PortfolioDbContext>(options =>
 // Add Services
 builder.Services.AddScoped<PortfolioBalancingService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<ProfitabilityService>();
 
 // Add JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

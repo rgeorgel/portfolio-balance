@@ -564,3 +564,134 @@ table tr:hover {
         height: 200px;
     }
 }
+
+/* Profitability Page Styles */
+.card .subtext {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.filter-controls {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-controls label {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.filter-controls select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.performers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.performers-card {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.performers-card h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.performers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.performer-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background-color: white;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    transition: box-shadow 0.2s;
+}
+
+.performer-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.performer-rank {
+    font-size: 24px;
+    font-weight: bold;
+    color: #3498db;
+    min-width: 30px;
+    text-align: center;
+}
+
+.performer-details {
+    flex: 1;
+}
+
+.performer-name {
+    font-weight: bold;
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+.performer-type {
+    color: #666;
+    font-size: 13px;
+    margin-top: 2px;
+}
+
+.performer-return {
+    text-align: right;
+}
+
+.performer-percentage {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.performer-absolute {
+    font-size: 13px;
+    margin-top: 2px;
+}
+
+.table-container {
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+    .performers-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .performer-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .performer-rank {
+        font-size: 20px;
+    }
+
+    .performer-return {
+        text-align: center;
+    }
+}
