@@ -17,6 +17,43 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - portfolio-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: portfoliobalance-backend
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=portfoliobalance;Username=postgres;Password=postgres
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - portfolio-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: portfoliobalance-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - portfolio-network
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+
+networks:
+  portfolio-network:
+    driver: bridge
