@@ -1,6 +1,8 @@
 // Dashboard functionality
 let investmentTypes = [];
 let investments = [];
+let portfolioPieChart = null;
+let allocationComparisonChart = null;
 
 async function loadDashboard() {
     try {
@@ -16,6 +18,8 @@ async function loadDashboard() {
 
         updateSummary();
         renderAllocationChart();
+        renderPortfolioPieChart();
+        renderAllocationComparisonChart();
         renderRecentInvestments();
     } catch (error) {
         console.error('Error loading dashboard:', error);
@@ -82,6 +86,150 @@ function renderRecentInvestments() {
             </div>
         `;
         container.innerHTML += cardHtml;
+    });
+}
+
+function renderPortfolioPieChart() {
+    const ctx = document.getElementById('portfolioPieChart');
+    if (!ctx) return;
+
+    const totalValue = investmentTypes.reduce((sum, type) => sum + type.currentTotalValue, 0);
+
+    // Destroy existing chart if it exists
+    if (portfolioPieChart) {
+        portfolioPieChart.destroy();
+    }
+
+    // Prepare data
+    const labels = investmentTypes.map(type => type.name);
+    const data = investmentTypes.map(type => type.currentTotalValue);
+    const percentages = investmentTypes.map(type =>
+        totalValue > 0 ? ((type.currentTotalValue / totalValue) * 100).toFixed(2) : 0
+    );
+
+    // Color palette
+    const colors = [
+        '#3498db', // Blue
+        '#2ecc71', // Green
+        '#f39c12', // Orange
+        '#e74c3c', // Red
+        '#9b59b6', // Purple
+        '#1abc9c', // Turquoise
+        '#34495e', // Dark Gray
+        '#e67e22'  // Carrot
+    ];
+
+    portfolioPieChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.slice(0, investmentTypes.length),
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = formatCurrency(context.parsed);
+                            const percentage = percentages[context.dataIndex];
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderAllocationComparisonChart() {
+    const ctx = document.getElementById('allocationComparisonChart');
+    if (!ctx) return;
+
+    const totalValue = investmentTypes.reduce((sum, type) => sum + type.currentTotalValue, 0);
+
+    // Destroy existing chart if it exists
+    if (allocationComparisonChart) {
+        allocationComparisonChart.destroy();
+    }
+
+    // Prepare data
+    const labels = investmentTypes.map(type => type.name);
+    const targetData = investmentTypes.map(type => type.allocationPercentage);
+    const currentData = investmentTypes.map(type =>
+        totalValue > 0 ? (type.currentTotalValue / totalValue) * 100 : 0
+    );
+
+    allocationComparisonChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Alocação Alvo (%)',
+                    data: targetData,
+                    backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 2
+                },
+                {
+                    label: 'Alocação Atual (%)',
+                    data: currentData,
+                    backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                    borderColor: 'rgba(46, 204, 113, 1)',
+                    borderWidth: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.parsed.y.toFixed(2)}%`;
+                        }
+                    }
+                }
+            }
+        }
     });
 }
 

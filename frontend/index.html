@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio Balance - Dashboard</title>
     <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -41,8 +42,26 @@
                 </div>
             </section>
 
+            <section class="charts-section">
+                <h2>Gráficos Visuais do Portfólio</h2>
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Distribuição por Tipo</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="portfolioPieChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Alocação: Alvo vs Atual</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="allocationComparisonChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section class="allocation-overview">
-                <h2>Alocação Atual</h2>
+                <h2>Alocação Detalhada</h2>
                 <div id="allocationChart" class="chart-container">
                     <!-- Allocation bars will be inserted here -->
                 </div>
