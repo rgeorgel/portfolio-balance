@@ -15,6 +15,10 @@
                 <a href="allocations.html">Alocações</a>
                 <a href="investments.html">Investimentos</a>
                 <a href="calculator.html" class="active">Calculadora</a>
+                <div class="user-menu">
+                    <span id="username"></span>
+                    <button onclick="logout()" class="btn-logout">Sair</button>
+                </div>
             </nav>
         </header>
 
@@ -60,6 +64,16 @@
     </div>
 
     <script src="js/config.js"></script>
+    <script>
+        // Check authentication on page load
+        checkAuth();
+
+        // Display username
+        const userInfo = getUserInfo();
+        if (userInfo) {
+            document.getElementById('username').textContent = userInfo.username;
+        }
+    </script>
     <script src="js/calculator.js"></script>
 </body>
 </html>

@@ -5,6 +5,76 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
     ? 'http://localhost:5000/api'
     : `http://${window.location.hostname}:5000/api`;
 
+// Authentication helper functions
+function getAuthToken() {
+    return localStorage.getItem('authToken');
+}
+
+function setAuthToken(token) {
+    localStorage.setItem('authToken', token);
+}
+
+function removeAuthToken() {
+    localStorage.removeItem('authToken');
+}
+
+function getUserInfo() {
+    const userInfo = localStorage.getItem('userInfo');
+    return userInfo ? JSON.parse(userInfo) : null;
+}
+
+function setUserInfo(username, email) {
+    localStorage.setItem('userInfo', JSON.stringify({ username, email }));
+}
+
+function removeUserInfo() {
+    localStorage.removeItem('userInfo');
+}
+
+function isAuthenticated() {
+    return !!getAuthToken();
+}
+
+function logout() {
+    removeAuthToken();
+    removeUserInfo();
+    window.location.href = 'login.html';
+}
+
+function checkAuth() {
+    if (!isAuthenticated()) {
+        window.location.href = 'login.html';
+    }
+}
+
+// Helper function to make authenticated API calls
+async function fetchWithAuth(url, options = {}) {
+    const token = getAuthToken();
+
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        ...options.headers
+    };
+
+    const response = await fetch(url, { ...options, headers });
+
+    if (response.status === 401) {
+        // Token expired or invalid
+        removeAuthToken();
+        removeUserInfo();
+        window.location.href = 'login.html';
+        return;
+    }
+
+    return response;
+}
+
 // Helper function to format currency
 function formatCurrency(value) {
     return new Intl.NumberFormat('pt-BR', {

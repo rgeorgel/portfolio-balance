@@ -13,10 +13,12 @@ public class PortfolioBalancingService
         _context = context;
     }
 
-    public async Task<BalanceCalculationResponseDto> CalculateBalanceAsync(decimal newInvestmentAmount)
+    public async Task<BalanceCalculationResponseDto> CalculateBalanceAsync(int userId, decimal newInvestmentAmount)
     {
+        // Get all investment types with their user-specific allocations and investments
         var investmentTypes = await _context.InvestmentTypes
-            .Include(t => t.Investments)
+            .Include(t => t.Investments.Where(i => i.UserId == userId))
+            .Include(t => t.UserAllocations.Where(ua => ua.UserId == userId))
             .ToListAsync();
 
         var totalCurrentValue = investmentTypes
@@ -38,10 +40,12 @@ public class PortfolioBalancingService
         foreach (var type in investmentTypes)
         {
             var currentTypeValue = type.Investments.Sum(i => i.CurrentValue);
-            var targetValue = totalAfterInvestment * (type.AllocationPercentage / 100);
+            var userAllocation = type.UserAllocations.FirstOrDefault();
+            var targetPercentage = userAllocation?.AllocationPercentage ?? 0m;
+            var targetValue = totalAfterInvestment * (targetPercentage / 100);
             var deficit = Math.Max(0, targetValue - currentTypeValue);
 
-            typeDeficits.Add((type.Id, currentTypeValue, deficit, type.AllocationPercentage));
+            typeDeficits.Add((type.Id, currentTypeValue, deficit, targetPercentage));
         }
 
         // Calculate total deficit across all types
@@ -110,6 +114,9 @@ public class PortfolioBalancingService
                 ? (currentTypeValue / totalCurrentValue) * 100
                 : 0;
 
+            var userAllocation = type.UserAllocations.FirstOrDefault();
+            var targetPercentage = userAllocation?.AllocationPercentage ?? 0m;
+
             var amountToInvest = allocations.ContainsKey(type.Id) ? allocations[type.Id] : 0;
             var valueAfterInvestment = currentTypeValue + amountToInvest;
             var percentageAfterInvestment = totalAfterInvestment > 0
@@ -120,7 +127,7 @@ public class PortfolioBalancingService
             {
                 InvestmentTypeId = type.Id,
                 InvestmentTypeName = type.Name,
-                TargetPercentage = type.AllocationPercentage,
+                TargetPercentage = targetPercentage,
                 CurrentValue = currentTypeValue,
                 CurrentPercentage = currentPercentage,
                 AmountToInvest = amountToInvest,

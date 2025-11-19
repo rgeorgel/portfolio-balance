@@ -5,11 +5,13 @@ let investments = [];
 async function loadDashboard() {
     try {
         // Load investment types
-        const typesResponse = await fetch(`${API_BASE_URL}/investmenttypes`);
+        const typesResponse = await fetchWithAuth(`${API_BASE_URL}/investmenttypes`);
+        if (!typesResponse) return;
         investmentTypes = await typesResponse.json();
 
         // Load investments
-        const investmentsResponse = await fetch(`${API_BASE_URL}/investments`);
+        const investmentsResponse = await fetchWithAuth(`${API_BASE_URL}/investments`);
+        if (!investmentsResponse) return;
         investments = await investmentsResponse.json();
 
         updateSummary();

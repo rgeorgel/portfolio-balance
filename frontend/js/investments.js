@@ -6,7 +6,8 @@ let currentFilter = '';
 async function loadData() {
     try {
         // Load investment types
-        const typesResponse = await fetch(`${API_BASE_URL}/investmenttypes`);
+        const typesResponse = await fetchWithAuth(`${API_BASE_URL}/investmenttypes`);
+        if (!typesResponse) return;
         investmentTypes = await typesResponse.json();
 
         // Populate filter dropdown
@@ -52,7 +53,8 @@ async function loadInvestments() {
             ? `${API_BASE_URL}/investments?investmentTypeId=${currentFilter}`
             : `${API_BASE_URL}/investments`;
 
-        const response = await fetch(url);
+        const response = await fetchWithAuth(url);
+        if (!response) return;
         investments = await response.json();
         renderInvestmentsTable();
     } catch (error) {
@@ -159,25 +161,19 @@ async function handleFormSubmit(event) {
 
         if (investmentId) {
             // Update existing investment
-            response = await fetch(`${API_BASE_URL}/investments/${investmentId}`, {
+            response = await fetchWithAuth(`${API_BASE_URL}/investments/${investmentId}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify(data)
             });
         } else {
             // Create new investment
-            response = await fetch(`${API_BASE_URL}/investments`, {
+            response = await fetchWithAuth(`${API_BASE_URL}/investments`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify(data)
             });
         }
 
-        if (response.ok) {
+        if (response && response.ok) {
             closeModal();
             await loadInvestments();
         } else {
@@ -199,11 +195,11 @@ async function deleteInvestment(id) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/investments/${id}`, {
+        const response = await fetchWithAuth(`${API_BASE_URL}/investments/${id}`, {
             method: 'DELETE'
         });
 
-        if (response.ok) {
+        if (response && response.ok) {
             await loadInvestments();
         } else {
             alert('Erro ao excluir investimento');
