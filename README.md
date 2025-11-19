@@ -226,6 +226,10 @@ portfolio-balance/
 ### Portfolio (Requer autenticação)
 - `POST /api/portfolio/calculate-balance` - Calcular balanceamento para o portfólio do usuário
 
+### Database Management (Requer autenticação)
+- `GET /api/database/migration-status` - Verificar status das migrações do banco de dados
+- `POST /api/database/migrate` - Aplicar migrações pendentes manualmente
+
 **Nota**: Todos os endpoints marcados com "Requer autenticação" precisam incluir o header `Authorization: Bearer {token}` nas requisições.
 
 ## Tecnologias Utilizadas
@@ -266,18 +270,65 @@ portfolio-balance/
 - Verifique o console do navegador para erros de rede
 
 ### Migrações do Entity Framework
-Se você precisar criar novas migrações:
+
+#### Migrações Automáticas
+Por padrão, a aplicação verifica e aplica migrações automaticamente ao iniciar. Se o banco de dados foi criado sem usar o sistema de migrações, ele será automaticamente recriado com o rastreamento adequado.
+
+Para desabilitar a migração automática no startup, configure `Database:AutoMigrateOnStartup` para `false` no `appsettings.json`:
+
+```json
+{
+  "Database": {
+    "AutoMigrateOnStartup": false
+  }
+}
+```
+
+Isso é útil para ambientes de produção onde você deseja controlar manualmente quando as migrações são aplicadas.
+
+#### Migrações Manuais via API
+Você também pode gerenciar migrações manualmente através de endpoints da API:
+
+**1. Verificar status das migrações:**
+```bash
+curl -X GET http://localhost:5000/api/database/migration-status \
+  -H "Authorization: Bearer SEU_TOKEN_JWT"
+```
+
+**2. Aplicar migrações pendentes:**
+```bash
+curl -X POST http://localhost:5000/api/database/migrate \
+  -H "Authorization: Bearer SEU_TOKEN_JWT"
+```
+
+**Resposta esperada:**
+```json
+{
+  "success": true,
+  "message": "Aplicando 1 migração(ões) pendente(s).",
+  "action": "Apply migrations",
+  "databaseExists": true,
+  "appliedMigrations": [],
+  "pendingMigrationsBefore": ["20251119031600_InitialCreate"],
+  "migrationsApplied": ["20251119031600_InitialCreate"]
+}
+```
+
+#### Criando Novas Migrações
+Se você precisar criar novas migrações durante o desenvolvimento:
 
 ```bash
 # Criar migração
 dotnet ef migrations add NomeDaMigracao
 
-# Aplicar migrações
+# Aplicar migrações via CLI
 dotnet ef database update
 
 # Reverter última migração
 dotnet ef migrations remove
 ```
+
+**Nota**: Os endpoints de migração requerem autenticação. Em produção, considere adicionar autorização baseada em roles (admin apenas).
 
 ## Segurança
 
