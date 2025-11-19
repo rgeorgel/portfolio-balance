@@ -67,6 +67,45 @@ namespace PortfolioBalance.Migrations
                     b.ToTable("Investments");
                 });
 
+            modelBuilder.Entity("PortfolioBalance.Models.InvestmentHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("InvestmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<decimal?>("Quantity")
+                        .HasPrecision(18, 8)
+                        .HasColumnType("numeric(18,8)");
+
+                    b.Property<DateTime>("RecordedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("UnitValue")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<decimal>("Value")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvestmentId");
+
+                    b.HasIndex("RecordedDate");
+
+                    b.ToTable("InvestmentHistories");
+                });
+
             modelBuilder.Entity("PortfolioBalance.Models.InvestmentType", b =>
                 {
                     b.Property<int>("Id")
@@ -193,6 +232,17 @@ namespace PortfolioBalance.Migrations
                     b.Navigation("InvestmentType");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PortfolioBalance.Models.InvestmentHistory", b =>
+                {
+                    b.HasOne("PortfolioBalance.Models.Investment", "Investment")
+                        .WithMany()
+                        .HasForeignKey("InvestmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Investment");
                 });
 
             modelBuilder.Entity("PortfolioBalance.Models.UserInvestmentTypeAllocation", b =>

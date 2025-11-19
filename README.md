@@ -15,7 +15,8 @@ Uma aplicação de balanceamento de portfólio de investimentos que ajuda você 
 3. **Gerenciamento de Investimentos**: Registre e gerencie seus investimentos individuais
 4. **Calculadora de Balanceamento**: Calcule como distribuir novos investimentos para manter o balanceamento do portfólio
 5. **Dashboard**: Visualize o resumo do seu portfólio
-6. **Isolamento de Dados**: Cada usuário vê apenas seus próprios investimentos e alocações
+6. **Histórico de Investimentos**: Acompanhe a evolução dos valores dos seus investimentos ao longo do tempo com gráficos interativos
+7. **Isolamento de Dados**: Cada usuário vê apenas seus próprios investimentos e alocações
 
 ## Tipos de Investimento Pré-configurados
 
@@ -172,6 +173,19 @@ Acesse: `http://localhost:8080`
    - Como distribuir entre os investimentos individuais
    - Estado do portfólio antes e depois do investimento
 
+### 4. Visualizar Histórico de Investimentos
+
+1. Acesse a página "Histórico"
+2. Escolha entre:
+   - **Portfólio Total**: Visualize o valor total do seu portfólio ao longo do tempo
+   - **Investimento Individual**: Selecione um investimento específico para ver sua evolução
+3. Use filtros de data para visualizar períodos específicos
+4. O histórico é registrado automaticamente:
+   - Ao criar um novo investimento
+   - Sempre que o valor é atualizado
+5. Você também pode adicionar entradas manuais de histórico
+6. Os gráficos são gerados automaticamente usando Chart.js
+
 ## Estrutura do Projeto
 
 ```
@@ -194,13 +208,15 @@ portfolio-balance/
 │   │   ├── dashboard.js         # Dashboard
 │   │   ├── allocations.js       # Alocações
 │   │   ├── investments.js       # Investimentos
-│   │   └── calculator.js        # Calculadora
+│   │   ├── calculator.js        # Calculadora
+│   │   └── history.js           # Histórico
 │   ├── login.html               # Página de Login
 │   ├── register.html            # Página de Registro
 │   ├── index.html               # Dashboard
 │   ├── allocations.html         # Página de Alocações
 │   ├── investments.html         # Página de Investimentos
-│   └── calculator.html          # Calculadora
+│   ├── calculator.html          # Calculadora
+│   └── history.html             # Histórico
 └── README.md
 ```
 
@@ -225,6 +241,12 @@ portfolio-balance/
 
 ### Portfolio (Requer autenticação)
 - `POST /api/portfolio/calculate-balance` - Calcular balanceamento para o portfólio do usuário
+
+### Investment History (Requer autenticação)
+- `GET /api/investmenthistory/investment/{investmentId}` - Obter histórico de um investimento específico
+- `GET /api/investmenthistory/portfolio` - Obter histórico agregado do portfólio
+- `POST /api/investmenthistory` - Adicionar entrada manual de histórico
+- `DELETE /api/investmenthistory/{id}` - Excluir entrada de histórico
 
 ### Database Management (Requer autenticação)
 - `GET /api/database/migration-status` - Verificar status das migrações do banco de dados
@@ -344,13 +366,13 @@ A aplicação implementa as seguintes medidas de segurança:
 
 ## Melhorias Futuras
 
-- Gráficos visuais do portfólio
-- Histórico de investimentos
 - Exportação de relatórios
 - Integração com APIs de cotações
 - Aplicativo mobile
 - Autenticação de dois fatores (2FA)
 - Recuperação de senha por email
+- Notificações de mudanças significativas no portfólio
+- Análise de rentabilidade e ROI
 
 ## Licença
 

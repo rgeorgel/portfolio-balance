@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Balance - Histórico</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Portfolio Balance</h1>
+            <nav>
+                <a href="index.html">Dashboard</a>
+                <a href="allocations.html">Alocações</a>
+                <a href="investments.html">Investimentos</a>
+                <a href="calculator.html">Calculadora</a>
+                <a href="history.html" class="active">Histórico</a>
+                <div class="user-menu">
+                    <span id="username"></span>
+                    <button onclick="logout()" class="btn-logout">Sair</button>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="history-section">
+                <h2>Histórico de Investimentos</h2>
+
+                <div class="filter-section">
+                    <div class="form-group">
+                        <label for="investmentFilter">Investimento:</label>
+                        <select id="investmentFilter">
+                            <option value="">Portfólio Total</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="startDate">Data Inicial:</label>
+                        <input type="date" id="startDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="endDate">Data Final:</label>
+                        <input type="date" id="endDate">
+                    </div>
+
+                    <button id="filterBtn" class="btn btn-primary">Filtrar</button>
+                    <button id="addHistoryBtn" class="btn btn-secondary">Adicionar Entrada Manual</button>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="historyChart"></canvas>
+                </div>
+
+                <div id="historyTable" class="history-table">
+                    <!-- History table will be inserted here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for adding manual history entry -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Adicionar Entrada Manual</h2>
+            <form id="historyForm">
+                <div class="form-group">
+                    <label for="historyInvestment">Investimento*</label>
+                    <select id="historyInvestment" required>
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="historyValue">Valor*</label>
+                    <input type="number" id="historyValue" step="0.01" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="historyUnitValue">Valor Unitário</label>
+                    <input type="number" id="historyUnitValue" step="0.01" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="historyQuantity">Quantidade</label>
+                    <input type="number" id="historyQuantity" step="0.0001" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="historyDate">Data*</label>
+                    <input type="datetime-local" id="historyDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="historyNotes">Notas</label>
+                    <textarea id="historyNotes" maxlength="500" rows="3"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelHistoryBtn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // Check authentication on page load
+        checkAuth();
+
+        // Display username
+        const userInfo = getUserInfo();
+        if (userInfo) {
+            document.getElementById('username').textContent = userInfo.username;
+        }
+    </script>
+    <script src="js/history.js"></script>
+</body>
+</html>

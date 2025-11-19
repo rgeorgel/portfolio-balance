@@ -118,6 +118,19 @@ public class InvestmentsController : ControllerBase
         _context.Investments.Add(investment);
         await _context.SaveChangesAsync();
 
+        // Record initial history entry
+        var history = new InvestmentHistory
+        {
+            InvestmentId = investment.Id,
+            Value = investment.CurrentValue,
+            UnitValue = investment.UnitValue,
+            Quantity = investment.Quantity,
+            RecordedDate = DateTime.UtcNow,
+            Notes = "Initial investment"
+        };
+        _context.InvestmentHistories.Add(history);
+        await _context.SaveChangesAsync();
+
         var result = new InvestmentDto
         {
             Id = investment.Id,
@@ -149,6 +162,11 @@ public class InvestmentsController : ControllerBase
             return NotFound();
         }
 
+        // Check if value changed to record history
+        bool valueChanged = investment.CurrentValue != dto.CurrentValue ||
+                           investment.UnitValue != dto.UnitValue ||
+                           investment.Quantity != dto.Quantity;
+
         investment.Name = dto.Name;
         investment.CurrentValue = dto.CurrentValue;
         investment.UnitValue = dto.UnitValue;
@@ -156,6 +174,22 @@ public class InvestmentsController : ControllerBase
         investment.Weight = dto.Weight;
 
         await _context.SaveChangesAsync();
+
+        // Record history entry if value changed
+        if (valueChanged)
+        {
+            var history = new InvestmentHistory
+            {
+                InvestmentId = investment.Id,
+                Value = investment.CurrentValue,
+                UnitValue = investment.UnitValue,
+                Quantity = investment.Quantity,
+                RecordedDate = DateTime.UtcNow,
+                Notes = "Value updated"
+            };
+            _context.InvestmentHistories.Add(history);
+            await _context.SaveChangesAsync();
+        }
 
         return NoContent();
     }
