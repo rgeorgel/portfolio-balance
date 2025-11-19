@@ -7,7 +7,6 @@ namespace PortfolioBalance.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize] // Require authentication for all endpoints in this controller
 public class DatabaseController : ControllerBase
 {
     private readonly PortfolioDbContext _context;

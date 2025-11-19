@@ -11,14 +11,13 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./data/postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - portfolio-network
+    restart: unless-stopped
 
   backend:
     build:
@@ -34,8 +33,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - portfolio-network
     restart: unless-stopped
 
   frontend:
@@ -47,13 +44,4 @@ services:
       - "8080:80"
     depends_on:
       - backend
-    networks:
-      - portfolio-network
     restart: unless-stopped
-
-volumes:
-  postgres_data:
-
-networks:
-  portfolio-network:
-    driver: bridge
