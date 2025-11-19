@@ -66,8 +66,36 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<PortfolioDbContext>();
-        context.Database.Migrate();
-        Console.WriteLine("Database migrations applied successfully.");
+        var logger = services.GetRequiredService<ILogger<Program>>();
+
+        // Check for pending migrations
+        var pendingMigrations = context.Database.GetPendingMigrations().ToList();
+        var appliedMigrations = context.Database.GetAppliedMigrations().ToList();
+
+        logger.LogInformation($"Applied migrations: {appliedMigrations.Count}");
+        logger.LogInformation($"Pending migrations: {pendingMigrations.Count}");
+
+        if (pendingMigrations.Any())
+        {
+            logger.LogInformation("Pending migrations found: {Migrations}", string.Join(", ", pendingMigrations));
+
+            // If there are pending migrations but no applied migrations,
+            // the database might have been created without migrations.
+            // We need to ensure a clean state.
+            if (!appliedMigrations.Any())
+            {
+                logger.LogWarning("No migrations have been applied, but database exists. Recreating database to ensure migration history is tracked.");
+                context.Database.EnsureDeleted();
+                logger.LogInformation("Database deleted. Applying migrations from scratch...");
+            }
+
+            context.Database.Migrate();
+            logger.LogInformation("Database migrations applied successfully.");
+        }
+        else
+        {
+            logger.LogInformation("Database is up to date. No migrations needed.");
+        }
     }
     catch (Exception ex)
     {
