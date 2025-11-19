@@ -140,6 +140,20 @@ namespace PortfolioBalance.Migrations
                 table: "Users",
                 column: "Username",
                 unique: true);
+
+            migrationBuilder.AddColumn<DateTime>(
+                name: "CreatedDate",
+                table: "Users",
+                type: "timestamp with time zone",
+                nullable: false,
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+
+            migrationBuilder.AddColumn<DateTime>(
+                name: "CreatedDate",
+                table: "Investments",
+                type: "timestamp with time zone",
+                nullable: false,
+                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
         }
 
         /// <inheritdoc />
