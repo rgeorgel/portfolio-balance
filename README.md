@@ -10,10 +10,12 @@ Uma aplicação de balanceamento de portfólio de investimentos que ajuda você 
 
 ## Funcionalidades
 
-1. **Configuração de Alocações**: Defina a porcentagem desejada para cada tipo de investimento
-2. **Gerenciamento de Investimentos**: Registre e gerencie seus investimentos individuais
-3. **Calculadora de Balanceamento**: Calcule como distribuir novos investimentos para manter o balanceamento do portfólio
-4. **Dashboard**: Visualize o resumo do seu portfólio
+1. **Autenticação e Autorização**: Sistema completo de registro e login com JWT tokens
+2. **Configuração de Alocações**: Defina a porcentagem desejada para cada tipo de investimento (personalizada por usuário)
+3. **Gerenciamento de Investimentos**: Registre e gerencie seus investimentos individuais
+4. **Calculadora de Balanceamento**: Calcule como distribuir novos investimentos para manter o balanceamento do portfólio
+5. **Dashboard**: Visualize o resumo do seu portfólio
+6. **Isolamento de Dados**: Cada usuário vê apenas seus próprios investimentos e alocações
 
 ## Tipos de Investimento Pré-configurados
 
@@ -110,6 +112,34 @@ Acesse: `http://localhost:8080`
 
 ## Uso
 
+### 0. Autenticação
+
+#### Primeiro Acesso - Registro
+
+1. Ao acessar `http://localhost:8080`, você será redirecionado para a página de login
+2. Clique em "Registre-se" para criar uma nova conta
+3. Preencha os dados:
+   - **Usuário**: Nome de usuário (mínimo 3 caracteres)
+   - **Email**: Endereço de email válido
+   - **Senha**: Senha segura (mínimo 6 caracteres)
+   - **Confirmar Senha**: Repita a senha
+4. Clique em "Registrar"
+5. Após o registro, você será automaticamente autenticado e redirecionado para o dashboard
+6. As alocações padrão serão criadas automaticamente (20% para cada tipo de investimento)
+
+#### Login
+
+1. Acesse `http://localhost:8080/login.html`
+2. Insira seu usuário e senha
+3. Clique em "Entrar"
+4. Você será redirecionado para o dashboard
+
+#### Logout
+
+- Clique no botão "Sair" no canto superior direito de qualquer página
+
+**Nota**: Todos os seus dados (investimentos e alocações) são privados e isolados. Outros usuários não podem ver ou modificar seus dados.
+
 ### 1. Configurar Alocações
 
 1. Acesse a página "Alocações"
@@ -159,11 +189,14 @@ portfolio-balance/
 │   ├── css/
 │   │   └── styles.css           # Estilos
 │   ├── js/
-│   │   ├── config.js            # Configurações
+│   │   ├── config.js            # Configurações e autenticação
+│   │   ├── auth.js              # Login e registro
 │   │   ├── dashboard.js         # Dashboard
 │   │   ├── allocations.js       # Alocações
 │   │   ├── investments.js       # Investimentos
 │   │   └── calculator.js        # Calculadora
+│   ├── login.html               # Página de Login
+│   ├── register.html            # Página de Registro
 │   ├── index.html               # Dashboard
 │   ├── allocations.html         # Página de Alocações
 │   ├── investments.html         # Página de Investimentos
@@ -173,21 +206,27 @@ portfolio-balance/
 
 ## API Endpoints
 
-### Investment Types
-- `GET /api/investmenttypes` - Listar tipos de investimento
-- `GET /api/investmenttypes/{id}` - Obter tipo específico
+### Authentication (Não requer autenticação)
+- `POST /api/auth/register` - Registrar novo usuário
+- `POST /api/auth/login` - Fazer login e obter token JWT
+
+### Investment Types (Requer autenticação)
+- `GET /api/investmenttypes` - Listar tipos de investimento com alocações do usuário
+- `GET /api/investmenttypes/{id}` - Obter tipo específico com alocação do usuário
 - `PUT /api/investmenttypes/{id}/allocation` - Atualizar alocação de um tipo
-- `PUT /api/investmenttypes/allocations` - Atualizar todas as alocações
+- `PUT /api/investmenttypes/allocations` - Atualizar todas as alocações do usuário
 
-### Investments
-- `GET /api/investments` - Listar investimentos
-- `GET /api/investments/{id}` - Obter investimento específico
+### Investments (Requer autenticação)
+- `GET /api/investments` - Listar investimentos do usuário
+- `GET /api/investments/{id}` - Obter investimento específico do usuário
 - `POST /api/investments` - Criar investimento
-- `PUT /api/investments/{id}` - Atualizar investimento
-- `DELETE /api/investments/{id}` - Excluir investimento
+- `PUT /api/investments/{id}` - Atualizar investimento do usuário
+- `DELETE /api/investments/{id}` - Excluir investimento do usuário
 
-### Portfolio
-- `POST /api/portfolio/calculate-balance` - Calcular balanceamento
+### Portfolio (Requer autenticação)
+- `POST /api/portfolio/calculate-balance` - Calcular balanceamento para o portfólio do usuário
+
+**Nota**: Todos os endpoints marcados com "Requer autenticação" precisam incluir o header `Authorization: Bearer {token}` nas requisições.
 
 ## Tecnologias Utilizadas
 
@@ -195,12 +234,14 @@ portfolio-balance/
 - ASP.NET Core 8.0
 - Entity Framework Core 8.0
 - Npgsql (PostgreSQL Provider)
+- JWT Bearer Authentication
 - Swagger/OpenAPI
 
 ### Frontend
 - HTML5
 - CSS3
 - Vanilla JavaScript (ES6+)
+- LocalStorage para gerenciamento de tokens
 
 ## Solução de Problemas
 
@@ -213,6 +254,16 @@ portfolio-balance/
 - Verifique se o backend está rodando
 - Confirme que a URL da API no `config.js` está correta
 - O backend já está configurado para aceitar requisições de qualquer origem em desenvolvimento
+
+### Erro de Autenticação (401 Unauthorized)
+- Certifique-se de que você está logado (verifique se há um token no localStorage)
+- O token JWT expira após 7 dias - faça login novamente se necessário
+- Limpe o localStorage do navegador e faça login novamente: `localStorage.clear()`
+
+### Redirecionamento constante para login
+- Limpe o localStorage do navegador
+- Certifique-se de que o backend está rodando e acessível
+- Verifique o console do navegador para erros de rede
 
 ### Migrações do Entity Framework
 Se você precisar criar novas migrações:
@@ -228,14 +279,27 @@ dotnet ef database update
 dotnet ef migrations remove
 ```
 
+## Segurança
+
+A aplicação implementa as seguintes medidas de segurança:
+
+- **Autenticação JWT**: Tokens seguros com expiração de 7 dias
+- **Hash de Senhas**: Senhas são armazenadas usando SHA-256
+- **Isolamento de Dados**: Cada usuário tem acesso apenas aos seus próprios dados
+- **Validação de Entrada**: Validação de dados no backend usando Data Annotations
+- **HTTPS Recomendado**: Em produção, sempre use HTTPS para proteger os tokens
+
+**Nota de Segurança**: A chave secreta JWT está no arquivo `appsettings.json` para desenvolvimento. Em produção, use variáveis de ambiente ou Azure Key Vault para armazenar secrets.
+
 ## Melhorias Futuras
 
-- Autenticação e autorização de usuários
 - Gráficos visuais do portfólio
 - Histórico de investimentos
 - Exportação de relatórios
 - Integração com APIs de cotações
 - Aplicativo mobile
+- Autenticação de dois fatores (2FA)
+- Recuperação de senha por email
 
 ## Licença
 

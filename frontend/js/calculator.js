@@ -11,17 +11,14 @@ async function handleCalculation(event) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/portfolio/calculate-balance`, {
+        const response = await fetchWithAuth(`${API_BASE_URL}/portfolio/calculate-balance`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify({
                 newInvestmentAmount: newInvestmentAmount
             })
         });
 
-        if (response.ok) {
+        if (response && response.ok) {
             const result = await response.json();
             displayResults(result);
         } else {

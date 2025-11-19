@@ -3,7 +3,8 @@ let investmentTypes = [];
 
 async function loadInvestmentTypes() {
     try {
-        const response = await fetch(`${API_BASE_URL}/investmenttypes`);
+        const response = await fetchWithAuth(`${API_BASE_URL}/investmenttypes`);
+        if (!response) return;
         investmentTypes = await response.json();
         renderAllocationInputs();
     } catch (error) {
@@ -90,13 +91,12 @@ async function handleFormSubmit(event) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/investmenttypes/allocations`, {
+        const response = await fetchWithAuth(`${API_BASE_URL}/investmenttypes/allocations`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify(allocations)
         });
+
+        if (!response) return;
 
         if (response.ok) {
             showMessage('Alocações salvas com sucesso!', 'success');

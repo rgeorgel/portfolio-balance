@@ -1,26 +1,37 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PortfolioBalance.Data;
 using PortfolioBalance.DTOs;
 using PortfolioBalance.Models;
+using PortfolioBalance.Services;
 
 namespace PortfolioBalance.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class InvestmentsController : ControllerBase
 {
     private readonly PortfolioDbContext _context;
+    private readonly AuthService _authService;
 
-    public InvestmentsController(PortfolioDbContext context)
+    public InvestmentsController(PortfolioDbContext context, AuthService authService)
     {
         _context = context;
+        _authService = authService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<InvestmentDto>>> GetInvestments([FromQuery] int? investmentTypeId = null)
     {
-        var query = _context.Investments.AsQueryable();
+        var userId = _authService.GetUserIdFromToken(User);
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var query = _context.Investments.Where(i => i.UserId == userId.Value);
 
         if (investmentTypeId.HasValue)
         {
@@ -45,8 +56,14 @@ public class InvestmentsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<InvestmentDto>> GetInvestment(int id)
     {
+        var userId = _authService.GetUserIdFromToken(User);
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
         var investment = await _context.Investments
-            .Where(i => i.Id == id)
+            .Where(i => i.Id == id && i.UserId == userId.Value)
             .Select(i => new InvestmentDto
             {
                 Id = i.Id,
@@ -69,6 +86,12 @@ public class InvestmentsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<InvestmentDto>> CreateInvestment([FromBody] CreateInvestmentDto dto)
     {
+        var userId = _authService.GetUserIdFromToken(User);
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
         var investmentType = await _context.InvestmentTypes.FindAsync(dto.InvestmentTypeId);
 
         if (investmentType == null)
@@ -78,6 +101,7 @@ public class InvestmentsController : ControllerBase
 
         var investment = new Investment
         {
+            UserId = userId.Value,
             InvestmentTypeId = dto.InvestmentTypeId,
             Name = dto.Name,
             CurrentValue = dto.CurrentValue,
@@ -104,7 +128,13 @@ public class InvestmentsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateInvestment(int id, [FromBody] UpdateInvestmentDto dto)
     {
-        var investment = await _context.Investments.FindAsync(id);
+        var userId = _authService.GetUserIdFromToken(User);
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var investment = await _context.Investments.FirstOrDefaultAsync(i => i.Id == id && i.UserId == userId.Value);
 
         if (investment == null)
         {
@@ -123,7 +153,13 @@ public class InvestmentsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteInvestment(int id)
     {
-        var investment = await _context.Investments.FindAsync(id);
+        var userId = _authService.GetUserIdFromToken(User);
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var investment = await _context.Investments.FirstOrDefaultAsync(i => i.Id == id && i.UserId == userId.Value);
 
         if (investment == null)
         {
