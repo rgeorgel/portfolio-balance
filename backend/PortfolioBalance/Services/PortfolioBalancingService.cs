@@ -143,14 +143,31 @@ public class PortfolioBalancingService
                 decimal remainingInvestmentAmount = amountToInvest;
 
                 var investmentsList = type.Investments.ToList();
+
+                // Find the last investment with weight > 0 (to assign remaining amount for rounding)
+                var lastWeightedIndex = -1;
+                for (int i = investmentsList.Count - 1; i >= 0; i--)
+                {
+                    if (investmentsList[i].Weight > 0)
+                    {
+                        lastWeightedIndex = i;
+                        break;
+                    }
+                }
+
                 for (int i = 0; i < investmentsList.Count; i++)
                 {
                     var investment = investmentsList[i];
                     decimal investmentAmount;
 
-                    if (i == investmentsList.Count - 1)
+                    if (investment.Weight == 0)
                     {
-                        // Last investment gets remaining amount to avoid rounding issues
+                        // Investments with weight 0 are not counted in allocation
+                        investmentAmount = 0;
+                    }
+                    else if (i == lastWeightedIndex)
+                    {
+                        // Last weighted investment gets remaining amount to avoid rounding issues
                         investmentAmount = remainingInvestmentAmount;
                     }
                     else
