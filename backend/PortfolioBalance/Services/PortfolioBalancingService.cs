@@ -32,6 +32,77 @@ public class PortfolioBalancingService
             Allocations = new List<TypeAllocationDto>()
         };
 
+        // First pass: calculate deficits (how far each type is from target)
+        var typeDeficits = new List<(int typeId, decimal currentValue, decimal deficit, decimal targetPercentage)>();
+
+        foreach (var type in investmentTypes)
+        {
+            var currentTypeValue = type.Investments.Sum(i => i.CurrentValue);
+            var targetValue = totalAfterInvestment * (type.AllocationPercentage / 100);
+            var deficit = Math.Max(0, targetValue - currentTypeValue);
+
+            typeDeficits.Add((type.Id, currentTypeValue, deficit, type.AllocationPercentage));
+        }
+
+        // Calculate total deficit across all types
+        var totalDeficit = typeDeficits.Sum(td => td.deficit);
+
+        // Second pass: allocate the available investment proportionally to deficits
+        decimal remainingToAllocate = newInvestmentAmount;
+        var allocations = new Dictionary<int, decimal>();
+
+        if (totalDeficit > 0)
+        {
+            // Distribute proportionally based on deficits
+            for (int i = 0; i < typeDeficits.Count; i++)
+            {
+                var typeDeficit = typeDeficits[i];
+                decimal amountToInvest;
+
+                if (i == typeDeficits.Count - 1)
+                {
+                    // Last item gets the remaining amount to avoid rounding issues
+                    amountToInvest = remainingToAllocate;
+                }
+                else
+                {
+                    // Proportional allocation based on deficit
+                    amountToInvest = (typeDeficit.deficit / totalDeficit) * newInvestmentAmount;
+                    remainingToAllocate -= amountToInvest;
+                }
+
+                allocations[typeDeficit.typeId] = amountToInvest;
+            }
+        }
+        else
+        {
+            // No deficits - distribute proportionally based on target percentages
+            for (int i = 0; i < typeDeficits.Count; i++)
+            {
+                var typeDeficit = typeDeficits[i];
+                decimal amountToInvest;
+
+                if (i == typeDeficits.Count - 1)
+                {
+                    // Last item gets the remaining amount to avoid rounding issues
+                    amountToInvest = remainingToAllocate;
+                }
+                else if (typeDeficit.targetPercentage > 0)
+                {
+                    // Proportional allocation based on target percentage
+                    amountToInvest = (typeDeficit.targetPercentage / 100) * newInvestmentAmount;
+                    remainingToAllocate -= amountToInvest;
+                }
+                else
+                {
+                    amountToInvest = 0;
+                }
+
+                allocations[typeDeficit.typeId] = amountToInvest;
+            }
+        }
+
+        // Third pass: build response with allocated amounts
         foreach (var type in investmentTypes)
         {
             var currentTypeValue = type.Investments.Sum(i => i.CurrentValue);
@@ -39,9 +110,7 @@ public class PortfolioBalancingService
                 ? (currentTypeValue / totalCurrentValue) * 100
                 : 0;
 
-            var targetValue = totalAfterInvestment * (type.AllocationPercentage / 100);
-            var amountToInvest = Math.Max(0, targetValue - currentTypeValue);
-
+            var amountToInvest = allocations.ContainsKey(type.Id) ? allocations[type.Id] : 0;
             var valueAfterInvestment = currentTypeValue + amountToInvest;
             var percentageAfterInvestment = totalAfterInvestment > 0
                 ? (valueAfterInvestment / totalAfterInvestment) * 100
@@ -64,14 +133,27 @@ public class PortfolioBalancingService
             if (amountToInvest > 0 && type.Investments.Any())
             {
                 var totalWeight = type.Investments.Sum(i => i.Weight);
+                decimal remainingInvestmentAmount = amountToInvest;
 
-                foreach (var investment in type.Investments)
+                var investmentsList = type.Investments.ToList();
+                for (int i = 0; i < investmentsList.Count; i++)
                 {
-                    var weightPercentage = totalWeight > 0
-                        ? investment.Weight / totalWeight
-                        : 0;
+                    var investment = investmentsList[i];
+                    decimal investmentAmount;
 
-                    var investmentAmount = amountToInvest * weightPercentage;
+                    if (i == investmentsList.Count - 1)
+                    {
+                        // Last investment gets remaining amount to avoid rounding issues
+                        investmentAmount = remainingInvestmentAmount;
+                    }
+                    else
+                    {
+                        var weightPercentage = totalWeight > 0
+                            ? investment.Weight / totalWeight
+                            : 0;
+                        investmentAmount = amountToInvest * weightPercentage;
+                        remainingInvestmentAmount -= investmentAmount;
+                    }
 
                     typeAllocation.InvestmentAllocations.Add(new InvestmentAllocationDto
                     {
