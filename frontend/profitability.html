@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Balance - Rentabilidade</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Portfolio Balance</h1>
+            <nav>
+                <a href="index.html">Dashboard</a>
+                <a href="allocations.html">Alocações</a>
+                <a href="investments.html">Investimentos</a>
+                <a href="calculator.html">Calculadora</a>
+                <a href="history.html">Histórico</a>
+                <a href="profitability.html" class="active">Rentabilidade</a>
+                <div class="user-menu">
+                    <span id="username"></span>
+                    <button onclick="logout()" class="btn-logout">Sair</button>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="profitability-summary">
+                <h2>Análise de Rentabilidade e ROI</h2>
+                <div class="filter-controls">
+                    <label for="periodFilter">Período:</label>
+                    <select id="periodFilter" onchange="loadProfitabilityData()">
+                        <option value="all">Todo o período</option>
+                        <option value="year">Último ano</option>
+                        <option value="6months">Últimos 6 meses</option>
+                        <option value="3months">Últimos 3 meses</option>
+                        <option value="month">Último mês</option>
+                    </select>
+                </div>
+
+                <div class="summary-cards">
+                    <div class="card">
+                        <h3>Retorno Total</h3>
+                        <p class="value" id="totalReturnPercentage">0,00%</p>
+                        <p class="subtext" id="totalReturnAbsolute">R$ 0,00</p>
+                    </div>
+                    <div class="card">
+                        <h3>Retorno Anualizado</h3>
+                        <p class="value" id="annualizedReturn">0,00%</p>
+                    </div>
+                    <div class="card">
+                        <h3>Valor Inicial</h3>
+                        <p class="value" id="initialValue">R$ 0,00</p>
+                    </div>
+                    <div class="card">
+                        <h3>Valor Atual</h3>
+                        <p class="value" id="currentValue">R$ 0,00</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="charts-section">
+                <h2>Visualizações de Rentabilidade</h2>
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>ROI por Tipo de Investimento</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="roiByTypeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Distribuição de Retornos</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="returnsDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="top-performers">
+                <h2>Melhores e Piores Desempenhos</h2>
+                <div class="performers-grid">
+                    <div class="performers-card">
+                        <h3>🏆 Top 5 Melhores</h3>
+                        <div id="topPerformersList" class="performers-list">
+                            <!-- Top performers will be inserted here -->
+                        </div>
+                    </div>
+                    <div class="performers-card">
+                        <h3>📉 Top 5 Piores</h3>
+                        <div id="bottomPerformersList" class="performers-list">
+                            <!-- Bottom performers will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="investments-performance">
+                <h2>Desempenho Individual dos Investimentos</h2>
+                <div class="table-container">
+                    <table id="investmentsTable">
+                        <thead>
+                            <tr>
+                                <th>Investimento</th>
+                                <th>Tipo</th>
+                                <th>Valor Inicial</th>
+                                <th>Valor Atual</th>
+                                <th>Retorno Absoluto</th>
+                                <th>ROI %</th>
+                                <th>Retorno Anualizado</th>
+                                <th>Período (dias)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="investmentsTableBody">
+                            <!-- Investment rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // Check authentication on page load
+        checkAuth();
+
+        // Display username
+        const userInfo = getUserInfo();
+        if (userInfo) {
+            document.getElementById('username').textContent = userInfo.username;
+        }
+    </script>
+    <script src="js/profitability.js"></script>
+</body>
+</html>

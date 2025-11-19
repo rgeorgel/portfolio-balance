@@ -16,7 +16,14 @@ async function loadDashboard() {
         if (!investmentsResponse) return;
         investments = await investmentsResponse.json();
 
-        updateSummary();
+        // Load profitability data
+        const profitabilityResponse = await fetchWithAuth(`${API_BASE_URL}/profitability/portfolio`);
+        let profitabilityData = null;
+        if (profitabilityResponse && profitabilityResponse.ok) {
+            profitabilityData = await profitabilityResponse.json();
+        }
+
+        updateSummary(profitabilityData);
         renderAllocationChart();
         renderPortfolioPieChart();
         renderAllocationComparisonChart();
@@ -26,13 +33,34 @@ async function loadDashboard() {
     }
 }
 
-function updateSummary() {
+function updateSummary(profitabilityData) {
     const totalValue = investmentTypes.reduce((sum, type) => sum + type.currentTotalValue, 0);
     const totalInvestments = investments.length;
 
     document.getElementById('totalValue').textContent = formatCurrency(totalValue);
     document.getElementById('totalTypes').textContent = investmentTypes.length;
     document.getElementById('totalInvestments').textContent = totalInvestments;
+
+    // Update ROI card
+    if (profitabilityData) {
+        const roiElement = document.getElementById('totalROI');
+        const roiAbsoluteElement = document.getElementById('totalROIAbsolute');
+
+        roiElement.textContent = formatPercentage(profitabilityData.totalReturnPercentage);
+        roiAbsoluteElement.textContent = formatCurrency(profitabilityData.totalAbsoluteReturn);
+
+        // Color code the ROI
+        if (profitabilityData.totalReturnPercentage > 0) {
+            roiElement.style.color = '#28a745';
+            roiAbsoluteElement.style.color = '#28a745';
+        } else if (profitabilityData.totalReturnPercentage < 0) {
+            roiElement.style.color = '#dc3545';
+            roiAbsoluteElement.style.color = '#dc3545';
+        } else {
+            roiElement.style.color = '#2c3e50';
+            roiAbsoluteElement.style.color = '#666';
+        }
+    }
 }
 
 function renderAllocationChart() {
