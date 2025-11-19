@@ -48,22 +48,19 @@ public class DatabaseController : ControllerBase
                 _logger.LogInformation("Pending migrations: {Count}", pendingMigrations.Count);
 
                 // Check if database was created without migrations (EnsureCreated scenario)
+                // IMPORTANT: We do NOT delete the database to avoid data loss!
                 if (!appliedMigrations.Any() && !pendingMigrations.Any())
                 {
-                    _logger.LogWarning("Database exists but has no migration history and no pending migrations.");
-                    _logger.LogWarning("This indicates the database was created without migrations.");
+                    _logger.LogError("CRITICAL: Database exists but has no migration history and no pending migrations.");
+                    _logger.LogError("This indicates the database was created without migrations.");
+                    _logger.LogError("To prevent data loss, the database will NOT be automatically deleted.");
 
-                    result.Message = "Database exists but has no migration history. Database will be recreated with proper migration tracking.";
-                    result.Action = "Recreate database";
+                    result.Message = "Database exists without migration history. To prevent data loss, automatic deletion is disabled. Please manually backup and delete the database if needed.";
+                    result.Action = "Manual intervention required";
+                    result.Success = false;
+                    result.Error = "Database exists without migration history. Manual intervention required to prevent data loss.";
 
-                    await _context.Database.EnsureDeletedAsync();
-                    _logger.LogInformation("Database deleted. Applying migrations from scratch...");
-
-                    await _context.Database.MigrateAsync();
-                    result.MigrationsApplied = (await _context.Database.GetAppliedMigrationsAsync()).ToList();
-                    result.Success = true;
-
-                    _logger.LogInformation("Database recreated and migrations applied successfully.");
+                    return StatusCode(409, result); // 409 Conflict - indicates action required
                 }
                 else if (pendingMigrations.Any())
                 {

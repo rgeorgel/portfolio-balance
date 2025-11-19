@@ -88,15 +88,18 @@ if (autoMigrateOnStartup)
                 logger.LogInformation($"Pending migrations: {pendingMigrations.Count}");
 
                 // If the database exists but has no migration history, it was likely created
-                // with EnsureCreated() which doesn't use migrations. We need to recreate it.
+                // with EnsureCreated() which doesn't use migrations.
+                // IMPORTANT: We do NOT delete the database to avoid data loss!
                 if (!appliedMigrations.Any() && !pendingMigrations.Any())
                 {
-                    logger.LogWarning("Database exists but has no migration history and no pending migrations.");
-                    logger.LogWarning("This indicates the database was created without migrations (e.g., using EnsureCreated).");
-                    logger.LogWarning("Deleting database to recreate it with proper migration tracking...");
-                    context.Database.EnsureDeleted();
-                    logger.LogInformation("Database deleted. Will apply migrations from scratch...");
-                    databaseExists = false;
+                    logger.LogError("CRITICAL: Database exists but has no migration history and no pending migrations.");
+                    logger.LogError("This indicates the database was created without migrations (e.g., using EnsureCreated).");
+                    logger.LogError("To prevent data loss, the database will NOT be automatically deleted.");
+                    logger.LogError("Please manually backup your data, delete the database, and restart the application.");
+                    throw new InvalidOperationException(
+                        "Database exists without migration history. " +
+                        "To prevent data loss, automatic deletion is disabled. " +
+                        "Please manually backup and delete the database if needed.");
                 }
                 else if (pendingMigrations.Any())
                 {
