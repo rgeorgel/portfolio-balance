@@ -97,6 +97,7 @@ function renderInvestmentsTable() {
                 <td>${investment.weight}</td>
                 <td>${date}</td>
                 <td>
+                    <button class="btn btn-secondary" onclick="viewHistory(${investment.id})">Histórico</button>
                     <button class="btn btn-edit" onclick="editInvestment(${investment.id})">Editar</button>
                     <button class="btn btn-danger" onclick="deleteInvestment(${investment.id})">Excluir</button>
                 </td>
@@ -251,6 +252,11 @@ async function deleteInvestment(id) {
         console.error('Error deleting investment:', error);
         alert('Erro ao excluir investimento');
     }
+}
+
+function viewHistory(id) {
+    // Redirect to history page with the investment selected
+    window.location.href = `history.html?investmentId=${id}`;
 }
 
 // Initialize page

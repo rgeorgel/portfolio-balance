@@ -13,6 +13,7 @@ public class PortfolioDbContext : DbContext
     public DbSet<InvestmentType> InvestmentTypes { get; set; }
     public DbSet<Investment> Investments { get; set; }
     public DbSet<UserInvestmentTypeAllocation> UserInvestmentTypeAllocations { get; set; }
+    public DbSet<InvestmentHistory> InvestmentHistories { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -69,6 +70,23 @@ public class PortfolioDbContext : DbContext
 
             // Unique constraint to prevent duplicate allocations for the same user and investment type
             entity.HasIndex(e => new { e.UserId, e.InvestmentTypeId }).IsUnique();
+        });
+
+        modelBuilder.Entity<InvestmentHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Value).HasPrecision(18, 2);
+            entity.Property(e => e.UnitValue).HasPrecision(18, 2);
+            entity.Property(e => e.Quantity).HasPrecision(18, 8);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+
+            entity.HasOne(e => e.Investment)
+                .WithMany()
+                .HasForeignKey(e => e.InvestmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.InvestmentId);
+            entity.HasIndex(e => e.RecordedDate);
         });
 
         // Seed initial investment types (these are shared across all users)
