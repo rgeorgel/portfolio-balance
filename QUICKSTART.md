@@ -1,14 +1,36 @@
 # Quick Start Guide
 
-## Opção 1: Usando Docker (Recomendado)
+## 🚀 Opção 1: Docker Compose - Aplicação Completa (Recomendado)
+
+Inicie **toda a aplicação** (PostgreSQL + Backend + Frontend) com um único comando:
+
+```bash
+docker compose up -d
+```
+
+Acesse a aplicação:
+- **Frontend**: http://localhost:8080
+- **Backend API**: http://localhost:5000
+- **Swagger**: http://localhost:5000/swagger
+
+Para mais detalhes sobre Docker, veja [DOCKER.md](DOCKER.md)
+
+Para parar os serviços:
+```bash
+docker compose down
+```
+
+---
+
+## Opção 2: Docker apenas para PostgreSQL
 
 ### 1. Iniciar o PostgreSQL com Docker
 
 ```bash
-docker-compose up -d
+docker compose up -d postgres
 ```
 
-Isso iniciará um container PostgreSQL na porta 5432.
+Isso iniciará apenas o container PostgreSQL na porta 5432.
 
 ### 2. Configurar e Rodar o Backend
 
@@ -51,7 +73,9 @@ php -S localhost:8080
 
 Acesse: `http://localhost:8080`
 
-## Opção 2: PostgreSQL Local
+---
+
+## Opção 3: PostgreSQL Local
 
 ### 1. Instalar PostgreSQL
 
