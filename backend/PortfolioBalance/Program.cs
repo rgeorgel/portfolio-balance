@@ -59,64 +59,76 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Apply database migrations
-using (var scope = app.Services.CreateScope())
+// Apply database migrations (if enabled in configuration)
+var autoMigrateOnStartup = builder.Configuration.GetValue<bool>("Database:AutoMigrateOnStartup", true);
+
+if (autoMigrateOnStartup)
 {
-    var services = scope.ServiceProvider;
-    try
+    using (var scope = app.Services.CreateScope())
     {
-        var context = services.GetRequiredService<PortfolioDbContext>();
-        var logger = services.GetRequiredService<ILogger<Program>>();
-
-        bool databaseExists = context.Database.CanConnect();
-
-        logger.LogInformation($"Database exists: {databaseExists}");
-
-        if (databaseExists)
+        var services = scope.ServiceProvider;
+        try
         {
-            // Check for pending and applied migrations
-            var pendingMigrations = context.Database.GetPendingMigrations().ToList();
-            var appliedMigrations = context.Database.GetAppliedMigrations().ToList();
+            var context = services.GetRequiredService<PortfolioDbContext>();
+            var logger = services.GetRequiredService<ILogger<Program>>();
 
-            logger.LogInformation($"Applied migrations: {appliedMigrations.Count}");
-            logger.LogInformation($"Pending migrations: {pendingMigrations.Count}");
+            logger.LogInformation("Automatic migration on startup is ENABLED");
 
-            // If the database exists but has no migration history, it was likely created
-            // with EnsureCreated() which doesn't use migrations. We need to recreate it.
-            if (!appliedMigrations.Any() && !pendingMigrations.Any())
+            bool databaseExists = context.Database.CanConnect();
+
+            logger.LogInformation($"Database exists: {databaseExists}");
+
+            if (databaseExists)
             {
-                logger.LogWarning("Database exists but has no migration history and no pending migrations.");
-                logger.LogWarning("This indicates the database was created without migrations (e.g., using EnsureCreated).");
-                logger.LogWarning("Deleting database to recreate it with proper migration tracking...");
-                context.Database.EnsureDeleted();
-                logger.LogInformation("Database deleted. Will apply migrations from scratch...");
-                databaseExists = false;
+                // Check for pending and applied migrations
+                var pendingMigrations = context.Database.GetPendingMigrations().ToList();
+                var appliedMigrations = context.Database.GetAppliedMigrations().ToList();
+
+                logger.LogInformation($"Applied migrations: {appliedMigrations.Count}");
+                logger.LogInformation($"Pending migrations: {pendingMigrations.Count}");
+
+                // If the database exists but has no migration history, it was likely created
+                // with EnsureCreated() which doesn't use migrations. We need to recreate it.
+                if (!appliedMigrations.Any() && !pendingMigrations.Any())
+                {
+                    logger.LogWarning("Database exists but has no migration history and no pending migrations.");
+                    logger.LogWarning("This indicates the database was created without migrations (e.g., using EnsureCreated).");
+                    logger.LogWarning("Deleting database to recreate it with proper migration tracking...");
+                    context.Database.EnsureDeleted();
+                    logger.LogInformation("Database deleted. Will apply migrations from scratch...");
+                    databaseExists = false;
+                }
+                else if (pendingMigrations.Any())
+                {
+                    logger.LogInformation("Pending migrations found: {Migrations}", string.Join(", ", pendingMigrations));
+                    context.Database.Migrate();
+                    logger.LogInformation("Database migrations applied successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Database is up to date. No migrations needed.");
+                }
             }
-            else if (pendingMigrations.Any())
+
+            // If database doesn't exist (or was just deleted), create it with migrations
+            if (!databaseExists)
             {
-                logger.LogInformation("Pending migrations found: {Migrations}", string.Join(", ", pendingMigrations));
+                logger.LogInformation("Creating database with migrations...");
                 context.Database.Migrate();
-                logger.LogInformation("Database migrations applied successfully.");
-            }
-            else
-            {
-                logger.LogInformation("Database is up to date. No migrations needed.");
+                logger.LogInformation("Database created and migrations applied successfully.");
             }
         }
-
-        // If database doesn't exist (or was just deleted), create it with migrations
-        if (!databaseExists)
+        catch (Exception ex)
         {
-            logger.LogInformation("Creating database with migrations...");
-            context.Database.Migrate();
-            logger.LogInformation("Database created and migrations applied successfully.");
+            Console.WriteLine($"An error occurred while applying migrations: {ex.Message}");
+            throw;
         }
     }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"An error occurred while applying migrations: {ex.Message}");
-        throw;
-    }
+}
+else
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogWarning("Automatic migration on startup is DISABLED. Use /api/database/migrate endpoint to apply migrations manually.");
 }
 
 // Configure the HTTP request pipeline.
