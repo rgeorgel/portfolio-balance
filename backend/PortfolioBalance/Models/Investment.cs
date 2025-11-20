@@ -14,4 +14,5 @@ public class Investment
 
     public User? User { get; set; }
     public InvestmentType? InvestmentType { get; set; }
+    public ICollection<InvestmentHistory> InvestmentHistories { get; set; } = new List<InvestmentHistory>();
 }
