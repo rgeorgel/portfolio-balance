@@ -1,5 +1,11 @@
 // Calculator page functionality
 
+function incrementAmount(value) {
+    const input = document.getElementById('newInvestmentAmount');
+    const currentValue = parseFloat(input.value) || 0;
+    input.value = (currentValue + value).toFixed(2);
+}
+
 async function handleCalculation(event) {
     event.preventDefault();
 

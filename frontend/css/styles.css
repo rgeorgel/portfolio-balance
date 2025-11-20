@@ -382,6 +382,30 @@ table tr:hover {
     margin-bottom: 30px;
 }
 
+.quick-increment-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-increment {
+    background-color: #27ae60;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+    flex: 1;
+    min-width: 80px;
+}
+
+.btn-increment:hover {
+    background-color: #229954;
+}
+
 .calculation-results {
     margin-top: 30px;
 }
