@@ -308,6 +308,18 @@ function closeHistoryModal() {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
+    // Set default date range (01/01/2025 - current date)
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+
+    startDateInput.value = '2025-01-01';
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    endDateInput.value = `${year}-${month}-${day}`;
+
     loadData();
 
     // Filter button

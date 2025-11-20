@@ -34,6 +34,12 @@
                         <div class="form-group">
                             <label for="newInvestmentAmount">Valor a Investir*</label>
                             <input type="number" id="newInvestmentAmount" step="0.01" min="0.01" required>
+                            <div class="quick-increment-buttons">
+                                <button type="button" class="btn btn-increment" onclick="incrementAmount(100)">+100</button>
+                                <button type="button" class="btn btn-increment" onclick="incrementAmount(500)">+500</button>
+                                <button type="button" class="btn btn-increment" onclick="incrementAmount(1000)">+1000</button>
+                                <button type="button" class="btn btn-increment" onclick="incrementAmount(5000)">+5000</button>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary">Calcular Distribuição</button>
                     </form>
