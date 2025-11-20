@@ -81,7 +81,7 @@ public class PortfolioDbContext : DbContext
             entity.Property(e => e.Notes).HasMaxLength(500);
 
             entity.HasOne(e => e.Investment)
-                .WithMany()
+                .WithMany(i => i.InvestmentHistories)
                 .HasForeignKey(e => e.InvestmentId)
                 .OnDelete(DeleteBehavior.Cascade);
 

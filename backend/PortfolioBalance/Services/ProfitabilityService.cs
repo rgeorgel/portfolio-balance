@@ -20,7 +20,7 @@ public class ProfitabilityService
     {
         var investment = await _context.Investments
             .Include(i => i.InvestmentType)
-            .Include(i => i.InvestmentHistory)
+            .Include(i => i.InvestmentHistories)
             .FirstOrDefaultAsync(i => i.Id == investmentId && i.UserId == userId);
 
         if (investment == null)
@@ -28,7 +28,7 @@ public class ProfitabilityService
             return null;
         }
 
-        var history = investment.InvestmentHistory
+        var history = investment.InvestmentHistories
             .OrderBy(h => h.RecordedDate)
             .ToList();
 
@@ -39,7 +39,7 @@ public class ProfitabilityService
             {
                 InvestmentId = investment.Id,
                 InvestmentName = investment.Name,
-                InvestmentTypeName = investment.InvestmentType.Name,
+                InvestmentTypeName = investment.InvestmentType?.Name ?? "Unknown",
                 InitialValue = investment.CurrentValue,
                 CurrentValue = investment.CurrentValue,
                 AbsoluteReturn = 0,
@@ -67,7 +67,7 @@ public class ProfitabilityService
         {
             InvestmentId = investment.Id,
             InvestmentName = investment.Name,
-            InvestmentTypeName = investment.InvestmentType.Name,
+            InvestmentTypeName = investment.InvestmentType?.Name ?? "Unknown",
             InitialValue = initialValue,
             CurrentValue = currentValue,
             AbsoluteReturn = absoluteReturn,
@@ -86,7 +86,7 @@ public class ProfitabilityService
     {
         var investments = await _context.Investments
             .Include(i => i.InvestmentType)
-            .Include(i => i.InvestmentHistory)
+            .Include(i => i.InvestmentHistories)
             .Where(i => i.UserId == userId)
             .ToListAsync();
 
@@ -98,7 +98,7 @@ public class ProfitabilityService
 
         foreach (var investment in investments)
         {
-            var history = investment.InvestmentHistory
+            var history = investment.InvestmentHistories
                 .Where(h => (!startDate.HasValue || h.RecordedDate >= startDate.Value) &&
                            (!endDate.HasValue || h.RecordedDate <= endDate.Value))
                 .OrderBy(h => h.RecordedDate)
@@ -126,7 +126,7 @@ public class ProfitabilityService
             {
                 InvestmentId = investment.Id,
                 InvestmentName = investment.Name,
-                InvestmentTypeName = investment.InvestmentType.Name,
+                InvestmentTypeName = investment.InvestmentType?.Name ?? "Unknown",
                 InitialValue = initialValue,
                 CurrentValue = currentValue,
                 AbsoluteReturn = absoluteReturn,
