@@ -150,6 +150,81 @@ public class DatabaseController : ControllerBase
             return StatusCode(500, new { error = ex.Message });
         }
     }
+
+    /// <summary>
+    /// Fix database sequences that may be out of sync
+    /// This resolves duplicate key errors by resetting sequences to the next available value
+    /// </summary>
+    /// <returns>Result of the sequence fix operation</returns>
+    [HttpPost("fix-sequences")]
+    public async Task<ActionResult<SequenceFixResult>> FixSequences()
+    {
+        try
+        {
+            var result = new SequenceFixResult();
+            var sequencesFixed = new List<string>();
+
+            _logger.LogInformation("Fixing database sequences...");
+
+            // Fix InvestmentHistories sequence
+            await _context.Database.ExecuteSqlRawAsync(@"
+                SELECT setval(
+                    pg_get_serial_sequence('""InvestmentHistories""', 'Id'),
+                    COALESCE((SELECT MAX(""Id"") FROM ""InvestmentHistories""), 0) + 1,
+                    false
+                );
+            ");
+            sequencesFixed.Add("InvestmentHistories");
+
+            // Fix Investments sequence
+            await _context.Database.ExecuteSqlRawAsync(@"
+                SELECT setval(
+                    pg_get_serial_sequence('""Investments""', 'Id'),
+                    COALESCE((SELECT MAX(""Id"") FROM ""Investments""), 0) + 1,
+                    false
+                );
+            ");
+            sequencesFixed.Add("Investments");
+
+            // Fix Users sequence
+            await _context.Database.ExecuteSqlRawAsync(@"
+                SELECT setval(
+                    pg_get_serial_sequence('""Users""', 'Id'),
+                    COALESCE((SELECT MAX(""Id"") FROM ""Users""), 0) + 1,
+                    false
+                );
+            ");
+            sequencesFixed.Add("Users");
+
+            // Fix UserInvestmentTypeAllocations sequence
+            await _context.Database.ExecuteSqlRawAsync(@"
+                SELECT setval(
+                    pg_get_serial_sequence('""UserInvestmentTypeAllocations""', 'Id'),
+                    COALESCE((SELECT MAX(""Id"") FROM ""UserInvestmentTypeAllocations""), 0) + 1,
+                    false
+                );
+            ");
+            sequencesFixed.Add("UserInvestmentTypeAllocations");
+
+            result.Success = true;
+            result.Message = $"Successfully fixed {sequencesFixed.Count} sequences";
+            result.SequencesFixed = sequencesFixed;
+
+            _logger.LogInformation("Sequences fixed successfully: {Sequences}", string.Join(", ", sequencesFixed));
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while fixing sequences");
+            return StatusCode(500, new SequenceFixResult
+            {
+                Success = false,
+                Message = $"Error fixing sequences: {ex.Message}",
+                Error = ex.Message
+            });
+        }
+    }
 }
 
 public class MigrationResult
@@ -171,4 +246,12 @@ public class MigrationStatusResult
     public bool NeedsMigration { get; set; }
     public List<string> AppliedMigrations { get; set; } = new();
     public List<string> PendingMigrations { get; set; } = new();
+}
+
+public class SequenceFixResult
+{
+    public bool Success { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public List<string> SequencesFixed { get; set; } = new();
+    public string? Error { get; set; }
 }
