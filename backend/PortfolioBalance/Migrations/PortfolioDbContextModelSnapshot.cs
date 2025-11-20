@@ -237,7 +237,7 @@ namespace PortfolioBalance.Migrations
             modelBuilder.Entity("PortfolioBalance.Models.InvestmentHistory", b =>
                 {
                     b.HasOne("PortfolioBalance.Models.Investment", "Investment")
-                        .WithMany()
+                        .WithMany("InvestmentHistories")
                         .HasForeignKey("InvestmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -262,6 +262,11 @@ namespace PortfolioBalance.Migrations
                     b.Navigation("InvestmentType");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PortfolioBalance.Models.Investment", b =>
+                {
+                    b.Navigation("InvestmentHistories");
                 });
 
             modelBuilder.Entity("PortfolioBalance.Models.InvestmentType", b =>
