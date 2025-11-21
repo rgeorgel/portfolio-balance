@@ -21,6 +21,9 @@ builder.Services.AddScoped<PortfolioBalancingService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ProfitabilityService>();
 
+// Add HttpClient for StockService
+builder.Services.AddHttpClient<IStockService, BrapiStockService>();
+
 // Add JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");

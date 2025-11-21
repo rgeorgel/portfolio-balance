@@ -140,6 +140,12 @@ function openModal(investmentId = null) {
     document.getElementById('investmentValue').readOnly = false;
     document.getElementById('calculatedNote').style.display = 'none';
 
+    // Reset stock lookup UI
+    document.getElementById('stockLookupGroup').style.display = 'none';
+    document.getElementById('tickerHint').style.display = 'none';
+    document.getElementById('stockQuoteInfo').style.display = 'none';
+    document.getElementById('stockQuoteError').style.display = 'none';
+
     if (investmentId) {
         // Edit mode
         const investment = investments.find(i => i.id === investmentId);
@@ -163,6 +169,9 @@ function openModal(investmentId = null) {
             if (investment.unitValue && investment.quantity) {
                 calculateInvestmentValue();
             }
+
+            // Show stock lookup if "Ações Nacionais"
+            toggleStockLookup();
         }
     } else {
         // Add mode
@@ -259,6 +268,90 @@ function viewHistory(id) {
     window.location.href = `history.html?investmentId=${id}`;
 }
 
+// Stock lookup functionality for "Ações Nacionais"
+function toggleStockLookup() {
+    const investmentTypeId = parseInt(document.getElementById('investmentType').value);
+    const stockLookupGroup = document.getElementById('stockLookupGroup');
+    const tickerHint = document.getElementById('tickerHint');
+    const stockQuoteInfo = document.getElementById('stockQuoteInfo');
+    const stockQuoteError = document.getElementById('stockQuoteError');
+
+    // ID 1 is "Ações Nacionais"
+    if (investmentTypeId === 1) {
+        stockLookupGroup.style.display = 'block';
+        tickerHint.style.display = 'block';
+    } else {
+        stockLookupGroup.style.display = 'none';
+        tickerHint.style.display = 'none';
+        stockQuoteInfo.style.display = 'none';
+        stockQuoteError.style.display = 'none';
+    }
+}
+
+async function fetchStockQuote() {
+    const ticker = document.getElementById('investmentName').value.trim();
+    const fetchBtnText = document.getElementById('fetchBtnText');
+    const fetchBtnLoading = document.getElementById('fetchBtnLoading');
+    const stockQuoteInfo = document.getElementById('stockQuoteInfo');
+    const stockQuoteError = document.getElementById('stockQuoteError');
+
+    if (!ticker) {
+        stockQuoteError.textContent = 'Digite o código da ação primeiro';
+        stockQuoteError.style.display = 'inline';
+        stockQuoteInfo.style.display = 'none';
+        return;
+    }
+
+    // Show loading state
+    fetchBtnText.style.display = 'none';
+    fetchBtnLoading.style.display = 'inline';
+    stockQuoteInfo.style.display = 'none';
+    stockQuoteError.style.display = 'none';
+    document.getElementById('fetchStockBtn').disabled = true;
+
+    try {
+        const response = await fetchWithAuth(`${API_BASE_URL}/stockquotes/${ticker}`);
+
+        if (!response) {
+            throw new Error('Falha na requisição');
+        }
+
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error('Ação não encontrada. Verifique o código digitado.');
+            }
+            throw new Error('Erro ao buscar cotação');
+        }
+
+        const quote = await response.json();
+
+        // Update unit value with stock price
+        document.getElementById('unitValue').value = quote.regularMarketPrice.toFixed(2);
+
+        // Show success message
+        const changePercent = quote.regularMarketChangePercent.toFixed(2);
+        const changeSign = quote.regularMarketChangePercent >= 0 ? '+' : '';
+        stockQuoteInfo.innerHTML = `
+            <strong>${quote.longName}</strong> -
+            R$ ${quote.regularMarketPrice.toFixed(2)}
+            (${changeSign}${changePercent}%)
+        `;
+        stockQuoteInfo.style.display = 'inline';
+
+        // Trigger calculation if quantity is filled
+        calculateInvestmentValue();
+    } catch (error) {
+        console.error('Error fetching stock quote:', error);
+        stockQuoteError.textContent = error.message || 'Erro ao buscar cotação';
+        stockQuoteError.style.display = 'inline';
+    } finally {
+        // Reset loading state
+        fetchBtnText.style.display = 'inline';
+        fetchBtnLoading.style.display = 'none';
+        document.getElementById('fetchStockBtn').disabled = false;
+    }
+}
+
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
@@ -276,6 +369,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add event listeners for automatic calculation
     document.getElementById('unitValue').addEventListener('input', calculateInvestmentValue);
     document.getElementById('quantity').addEventListener('input', calculateInvestmentValue);
+
+    // Add event listener for investment type change (stock lookup toggle)
+    document.getElementById('investmentType').addEventListener('change', toggleStockLookup);
+
+    // Add event listener for stock quote fetch button
+    document.getElementById('fetchStockBtn').addEventListener('click', fetchStockQuote);
 
     // Close modal when pressing Esc key
     document.addEventListener('keydown', (event) => {

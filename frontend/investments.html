@@ -64,6 +64,16 @@
                 <div class="form-group">
                     <label for="investmentName">Nome*</label>
                     <input type="text" id="investmentName" required>
+                    <small id="tickerHint" style="display: none; color: #666;">Digite o código da ação (ex: PETR4, VALE3, ITUB4)</small>
+                </div>
+
+                <div class="form-group" id="stockLookupGroup" style="display: none;">
+                    <button type="button" class="btn btn-secondary" id="fetchStockBtn">
+                        <span id="fetchBtnText">Buscar Cotação Atual</span>
+                        <span id="fetchBtnLoading" style="display: none;">Buscando...</span>
+                    </button>
+                    <small id="stockQuoteInfo" style="display: none; color: #28a745; margin-left: 10px;"></small>
+                    <small id="stockQuoteError" style="display: none; color: #dc3545; margin-left: 10px;"></small>
                 </div>
 
                 <div class="form-group">
