@@ -163,15 +163,17 @@ Acesse: `http://localhost:8080`
 - Se você tem 2 investimentos com peso 1.0 cada, o valor será dividido igualmente
 - Se um tem peso 2.0 e outro 1.0, o primeiro receberá 2/3 do valor
 
-#### Integração com API de Cotações (Ações Nacionais)
+#### Integração com API de Cotações (Ações Nacionais e Fundos Imobiliários)
 
-Para investimentos do tipo **"Ações Nacionais"**, a aplicação integra-se com a [Brapi API](https://brapi.dev) para buscar cotações em tempo real:
+Para investimentos do tipo **"Ações Nacionais"** e **"Fundos Imobiliários"**, a aplicação integra-se com a [Brapi API](https://brapi.dev) para buscar cotações em tempo real:
 
-1. Ao selecionar "Ações Nacionais" como tipo de investimento, um botão "Buscar Cotação Atual" será exibido
-2. Digite o código da ação (ticker) no campo "Nome" (ex: PETR4, VALE3, ITUB4)
+1. Ao selecionar "Ações Nacionais" ou "Fundos Imobiliários" como tipo de investimento, um botão "Buscar Cotação Atual" será exibido
+2. Digite o código do ativo no campo "Nome":
+   - **Ações**: PETR4, VALE3, ITUB4, BBAS3, etc.
+   - **FIIs**: HGLG11, XPML11, MXRF11, VISC11, etc.
 3. Clique em "Buscar Cotação Atual"
-4. O valor unitário será preenchido automaticamente com o preço atual da ação
-5. Informe a quantidade de ações e o valor total será calculado automaticamente
+4. O valor unitário (cota) será preenchido automaticamente com o preço atual
+5. Informe a quantidade de cotas e o valor total será calculado automaticamente
 
 **Ações disponíveis sem token (gratuitas):**
 - PETR4 (Petrobras)
@@ -179,7 +181,7 @@ Para investimentos do tipo **"Ações Nacionais"**, a aplicação integra-se com
 - VALE3 (Vale)
 - ITUB4 (Itaú Unibanco)
 
-**Para acessar outras ações da B3:**
+**Para acessar outras ações e todos os FIIs da B3:**
 1. Crie uma conta gratuita em [brapi.dev](https://brapi.dev)
 2. Obtenha seu token de API no dashboard
 3. Configure o token no arquivo `backend/PortfolioBalance/appsettings.json`:
@@ -193,7 +195,10 @@ Para investimentos do tipo **"Ações Nacionais"**, a aplicação integra-se com
 ```
 
 4. Reinicie o backend
-5. Agora você terá acesso a mais de 4.000 ações da B3
+5. Agora você terá acesso a:
+   - Mais de 4.000 ações da B3
+   - Todos os Fundos Imobiliários (FIIs)
+   - Dados históricos e informações avançadas
 
 **Nota**: A API Brapi fornece dados com até 15 minutos de atraso em relação ao mercado real.
 
@@ -274,10 +279,11 @@ portfolio-balance/
 - `DELETE /api/investments/{id}` - Excluir investimento do usuário
 
 ### Stock Quotes (Requer autenticação)
-- `GET /api/stockquotes/{ticker}` - Obter cotação atual de uma ação da B3
-  - Retorna preço atual, variação percentual, nome da empresa
+- `GET /api/stockquotes/{ticker}` - Obter cotação atual de ações e FIIs da B3
+  - Retorna preço atual, variação percentual, nome do ativo
+  - Suporta: Ações (ex: PETR4, VALE3) e FIIs (ex: HGLG11, XPML11)
   - Ações gratuitas (sem token): PETR4, MGLU3, VALE3, ITUB4
-  - Outras ações requerem token da API Brapi configurado
+  - Outros ativos requerem token da API Brapi configurado
 
 ### Portfolio (Requer autenticação)
 - `POST /api/portfolio/calculate-balance` - Calcular balanceamento para o portfólio do usuário
@@ -407,12 +413,16 @@ A aplicação implementa as seguintes medidas de segurança:
 ## Melhorias Futuras
 
 - Exportação de relatórios
-- Integração com APIs de cotações para outros tipos de investimento (criptomoedas, ações internacionais)
+- Integração com APIs de cotações para outros tipos de investimento:
+  - Criptomoedas (Bitcoin, Ethereum, etc.)
+  - Ações Internacionais (NYSE, NASDAQ)
+  - Renda Fixa (Tesouro Direto, CDBs)
 - Aplicativo mobile
 - Autenticação de dois fatores (2FA)
 - Recuperação de senha por email
 - Notificações de mudanças significativas no portfólio
 - Gráficos de rentabilidade comparativa entre investimentos
+- Cálculo automático de dividendos e proventos (ações e FIIs)
 
 ## Licença
 

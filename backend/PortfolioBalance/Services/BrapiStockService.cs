@@ -39,8 +39,17 @@ namespace PortfolioBalance.Services
 
                 var response = await _httpClient.GetAsync(url);
 
+                // Log the request for debugging (mask token for security)
+                var logUrl = hasToken ? $"{BrapiBaseUrl}/quote/{normalizedTicker}?token=***" : url;
+                _logger.LogInformation($"Brapi API request for {normalizedTicker}: {logUrl}");
+                _logger.LogInformation($"Brapi API response status: {response.StatusCode}");
+
                 if (!response.IsSuccessStatusCode)
                 {
+                    // Log response content for debugging
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning($"Brapi API error response for {ticker}: {errorContent}");
+
                     // Provide helpful error message for 401/403 errors
                     if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
                         response.StatusCode == System.Net.HttpStatusCode.Forbidden)
@@ -64,18 +73,43 @@ namespace PortfolioBalance.Services
                 }
 
                 var content = await response.Content.ReadAsStringAsync();
+
+                // Log the response content for debugging
+                _logger.LogInformation($"Brapi API response content for {ticker}: {content}");
+
                 var brapiResponse = JsonSerializer.Deserialize<BrapiResponse>(content, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
 
+                // Check if Brapi returned an error in the response body
+                if (!string.IsNullOrEmpty(brapiResponse?.Error) || !string.IsNullOrEmpty(brapiResponse?.Message))
+                {
+                    _logger.LogWarning($"Brapi API returned error for {ticker}. Error: {brapiResponse?.Error}, Message: {brapiResponse?.Message}");
+                    return null;
+                }
+
                 if (brapiResponse?.Results == null || brapiResponse.Results.Length == 0)
                 {
-                    _logger.LogWarning($"No results found for ticker {ticker}");
+                    _logger.LogWarning($"No results found for ticker {ticker}. Response was: {content}");
                     return null;
                 }
 
                 var result = brapiResponse.Results[0];
+
+                // Parse regularMarketTime (Brapi now returns ISO 8601 string instead of Unix timestamp)
+                DateTime marketTime = DateTime.UtcNow;
+                if (!string.IsNullOrEmpty(result.RegularMarketTime))
+                {
+                    if (DateTime.TryParse(result.RegularMarketTime, out DateTime parsedTime))
+                    {
+                        marketTime = parsedTime;
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Failed to parse regularMarketTime for {ticker}: {result.RegularMarketTime}");
+                    }
+                }
 
                 return new StockQuoteDto
                 {
@@ -84,7 +118,7 @@ namespace PortfolioBalance.Services
                     RegularMarketPrice = result.RegularMarketPrice,
                     RegularMarketChange = result.RegularMarketChange,
                     RegularMarketChangePercent = result.RegularMarketChangePercent,
-                    RegularMarketTime = DateTimeOffset.FromUnixTimeSeconds(result.RegularMarketTime).DateTime,
+                    RegularMarketTime = marketTime,
                     Currency = result.Currency ?? "BRL"
                 };
             }
@@ -99,6 +133,8 @@ namespace PortfolioBalance.Services
         private class BrapiResponse
         {
             public BrapiResult[]? Results { get; set; }
+            public string? Error { get; set; }
+            public string? Message { get; set; }
         }
 
         private class BrapiResult
@@ -109,7 +145,7 @@ namespace PortfolioBalance.Services
             public decimal RegularMarketPrice { get; set; }
             public decimal RegularMarketChange { get; set; }
             public decimal RegularMarketChangePercent { get; set; }
-            public long RegularMarketTime { get; set; }
+            public string? RegularMarketTime { get; set; } // Changed from long to string (Brapi now returns ISO 8601)
             public string? Currency { get; set; }
         }
     }

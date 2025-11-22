@@ -143,6 +143,8 @@ function openModal(investmentId = null) {
     // Reset stock lookup UI
     document.getElementById('stockLookupGroup').style.display = 'none';
     document.getElementById('tickerHint').style.display = 'none';
+    document.getElementById('tickerHintAcoes').style.display = 'none';
+    document.getElementById('tickerHintFiis').style.display = 'none';
     document.getElementById('stockQuoteInfo').style.display = 'none';
     document.getElementById('stockQuoteError').style.display = 'none';
 
@@ -268,21 +270,34 @@ function viewHistory(id) {
     window.location.href = `history.html?investmentId=${id}`;
 }
 
-// Stock lookup functionality for "Ações Nacionais"
+// Stock lookup functionality for "Ações Nacionais" and "Fundos Imobiliários"
 function toggleStockLookup() {
     const investmentTypeId = parseInt(document.getElementById('investmentType').value);
     const stockLookupGroup = document.getElementById('stockLookupGroup');
     const tickerHint = document.getElementById('tickerHint');
+    const tickerHintAcoes = document.getElementById('tickerHintAcoes');
+    const tickerHintFiis = document.getElementById('tickerHintFiis');
     const stockQuoteInfo = document.getElementById('stockQuoteInfo');
     const stockQuoteError = document.getElementById('stockQuoteError');
 
-    // ID 1 is "Ações Nacionais"
-    if (investmentTypeId === 1) {
+    // ID 1 is "Ações Nacionais", ID 2 is "Fundos Imobiliários"
+    if (investmentTypeId === 1 || investmentTypeId === 2) {
         stockLookupGroup.style.display = 'block';
         tickerHint.style.display = 'block';
+
+        // Show appropriate hint based on investment type
+        if (investmentTypeId === 1) {
+            tickerHintAcoes.style.display = 'inline';
+            tickerHintFiis.style.display = 'none';
+        } else if (investmentTypeId === 2) {
+            tickerHintAcoes.style.display = 'none';
+            tickerHintFiis.style.display = 'inline';
+        }
     } else {
         stockLookupGroup.style.display = 'none';
         tickerHint.style.display = 'none';
+        tickerHintAcoes.style.display = 'none';
+        tickerHintFiis.style.display = 'none';
         stockQuoteInfo.style.display = 'none';
         stockQuoteError.style.display = 'none';
     }

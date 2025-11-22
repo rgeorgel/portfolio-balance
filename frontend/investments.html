@@ -65,8 +65,14 @@
                     <label for="investmentName">Nome*</label>
                     <input type="text" id="investmentName" required>
                     <small id="tickerHint" style="display: none; color: #666;">
-                        Digite o código da ação. Cotações gratuitas: <strong>PETR4, MGLU3, VALE3, ITUB4</strong>
-                        <br>Outras ações requerem token da API Brapi (configure em appsettings.json)
+                        <span id="tickerHintAcoes" style="display: none;">
+                            Digite o código da ação. Cotações gratuitas: <strong>PETR4, MGLU3, VALE3, ITUB4</strong>
+                            <br>Outras ações requerem token da API Brapi
+                        </span>
+                        <span id="tickerHintFiis" style="display: none;">
+                            Digite o código do FII (ex: <strong>HGLG11, XPML11, MXRF11</strong>)
+                            <br>Requer token da API Brapi (configure em appsettings.json)
+                        </span>
                     </small>
                 </div>
 
