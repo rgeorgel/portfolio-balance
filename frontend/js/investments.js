@@ -317,10 +317,26 @@ async function fetchStockQuote() {
         }
 
         if (!response.ok) {
-            if (response.status === 404) {
-                throw new Error('Ação não encontrada. Verifique o código digitado.');
+            // Try to parse error message from response
+            let errorMessage = 'Erro ao buscar cotação';
+
+            try {
+                const errorData = await response.json();
+                if (errorData.message) {
+                    errorMessage = errorData.message;
+                }
+            } catch (e) {
+                // If can't parse JSON, use default error messages
+                if (response.status === 404) {
+                    errorMessage = 'Ação não encontrada. Verifique o código digitado.';
+                } else if (response.status === 402) {
+                    errorMessage = 'Token da API Brapi necessário para esta ação. Apenas PETR4, MGLU3, VALE3 e ITUB4 estão disponíveis sem token.';
+                } else if (response.status === 401 || response.status === 403) {
+                    errorMessage = 'Token da API Brapi inválido ou expirado.';
+                }
             }
-            throw new Error('Erro ao buscar cotação');
+
+            throw new Error(errorMessage);
         }
 
         const quote = await response.json();
