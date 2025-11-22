@@ -163,6 +163,40 @@ Acesse: `http://localhost:8080`
 - Se você tem 2 investimentos com peso 1.0 cada, o valor será dividido igualmente
 - Se um tem peso 2.0 e outro 1.0, o primeiro receberá 2/3 do valor
 
+#### Integração com API de Cotações (Ações Nacionais)
+
+Para investimentos do tipo **"Ações Nacionais"**, a aplicação integra-se com a [Brapi API](https://brapi.dev) para buscar cotações em tempo real:
+
+1. Ao selecionar "Ações Nacionais" como tipo de investimento, um botão "Buscar Cotação Atual" será exibido
+2. Digite o código da ação (ticker) no campo "Nome" (ex: PETR4, VALE3, ITUB4)
+3. Clique em "Buscar Cotação Atual"
+4. O valor unitário será preenchido automaticamente com o preço atual da ação
+5. Informe a quantidade de ações e o valor total será calculado automaticamente
+
+**Ações disponíveis sem token (gratuitas):**
+- PETR4 (Petrobras)
+- MGLU3 (Magazine Luiza)
+- VALE3 (Vale)
+- ITUB4 (Itaú Unibanco)
+
+**Para acessar outras ações da B3:**
+1. Crie uma conta gratuita em [brapi.dev](https://brapi.dev)
+2. Obtenha seu token de API no dashboard
+3. Configure o token no arquivo `backend/PortfolioBalance/appsettings.json`:
+
+```json
+{
+  "Brapi": {
+    "ApiToken": "SEU_TOKEN_AQUI"
+  }
+}
+```
+
+4. Reinicie o backend
+5. Agora você terá acesso a mais de 4.000 ações da B3
+
+**Nota**: A API Brapi fornece dados com até 15 minutos de atraso em relação ao mercado real.
+
 ### 3. Calcular Novo Investimento
 
 1. Acesse a página "Calculadora"
@@ -238,6 +272,12 @@ portfolio-balance/
 - `POST /api/investments` - Criar investimento
 - `PUT /api/investments/{id}` - Atualizar investimento do usuário
 - `DELETE /api/investments/{id}` - Excluir investimento do usuário
+
+### Stock Quotes (Requer autenticação)
+- `GET /api/stockquotes/{ticker}` - Obter cotação atual de uma ação da B3
+  - Retorna preço atual, variação percentual, nome da empresa
+  - Ações gratuitas (sem token): PETR4, MGLU3, VALE3, ITUB4
+  - Outras ações requerem token da API Brapi configurado
 
 ### Portfolio (Requer autenticação)
 - `POST /api/portfolio/calculate-balance` - Calcular balanceamento para o portfólio do usuário
@@ -367,12 +407,12 @@ A aplicação implementa as seguintes medidas de segurança:
 ## Melhorias Futuras
 
 - Exportação de relatórios
-- Integração com APIs de cotações
+- Integração com APIs de cotações para outros tipos de investimento (criptomoedas, ações internacionais)
 - Aplicativo mobile
 - Autenticação de dois fatores (2FA)
 - Recuperação de senha por email
 - Notificações de mudanças significativas no portfólio
-- Análise de rentabilidade e ROI
+- Gráficos de rentabilidade comparativa entre investimentos
 
 ## Licença
 

@@ -64,7 +64,10 @@
                 <div class="form-group">
                     <label for="investmentName">Nome*</label>
                     <input type="text" id="investmentName" required>
-                    <small id="tickerHint" style="display: none; color: #666;">Digite o código da ação (ex: PETR4, VALE3, ITUB4)</small>
+                    <small id="tickerHint" style="display: none; color: #666;">
+                        Digite o código da ação. Cotações gratuitas: <strong>PETR4, MGLU3, VALE3, ITUB4</strong>
+                        <br>Outras ações requerem token da API Brapi (configure em appsettings.json)
+                    </small>
                 </div>
 
                 <div class="form-group" id="stockLookupGroup" style="display: none;">

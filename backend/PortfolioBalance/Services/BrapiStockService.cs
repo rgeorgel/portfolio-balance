@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using PortfolioBalance.DTOs;
 
 namespace PortfolioBalance.Services
@@ -7,12 +8,15 @@ namespace PortfolioBalance.Services
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<BrapiStockService> _logger;
+        private readonly IConfiguration _configuration;
         private const string BrapiBaseUrl = "https://brapi.dev/api";
+        private static readonly string[] FreeTierTickers = { "PETR4", "MGLU3", "VALE3", "ITUB4" };
 
-        public BrapiStockService(HttpClient httpClient, ILogger<BrapiStockService> logger)
+        public BrapiStockService(HttpClient httpClient, ILogger<BrapiStockService> logger, IConfiguration configuration)
         {
             _httpClient = httpClient;
             _logger = logger;
+            _configuration = configuration;
         }
 
         public async Task<StockQuoteDto?> GetStockQuoteAsync(string ticker)
@@ -22,11 +26,40 @@ namespace PortfolioBalance.Services
                 // Brapi expects tickers without .SA suffix, but we'll normalize it
                 var normalizedTicker = ticker.Replace(".SA", "").ToUpper();
 
-                var response = await _httpClient.GetAsync($"{BrapiBaseUrl}/quote/{normalizedTicker}");
+                // Get API token from configuration (optional)
+                var apiToken = _configuration["Brapi:ApiToken"];
+                var hasToken = !string.IsNullOrWhiteSpace(apiToken);
+
+                // Build request URL
+                var url = $"{BrapiBaseUrl}/quote/{normalizedTicker}";
+                if (hasToken)
+                {
+                    url += $"?token={apiToken}";
+                }
+
+                var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning($"Failed to fetch stock quote for {ticker}. Status: {response.StatusCode}");
+                    // Provide helpful error message for 401/403 errors
+                    if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
+                        response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    {
+                        var isFreeTicker = Array.Exists(FreeTierTickers, t => t.Equals(normalizedTicker, StringComparison.OrdinalIgnoreCase));
+
+                        if (!hasToken && !isFreeTicker)
+                        {
+                            _logger.LogWarning($"API token required for {ticker}. Free tier only supports: {string.Join(", ", FreeTierTickers)}");
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Failed to fetch stock quote for {ticker}. Invalid or expired API token. Status: {response.StatusCode}");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Failed to fetch stock quote for {ticker}. Status: {response.StatusCode}");
+                    }
                     return null;
                 }
 
