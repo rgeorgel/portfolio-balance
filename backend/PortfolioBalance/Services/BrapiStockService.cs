@@ -97,6 +97,20 @@ namespace PortfolioBalance.Services
 
                 var result = brapiResponse.Results[0];
 
+                // Parse regularMarketTime (Brapi now returns ISO 8601 string instead of Unix timestamp)
+                DateTime marketTime = DateTime.UtcNow;
+                if (!string.IsNullOrEmpty(result.RegularMarketTime))
+                {
+                    if (DateTime.TryParse(result.RegularMarketTime, out DateTime parsedTime))
+                    {
+                        marketTime = parsedTime;
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Failed to parse regularMarketTime for {ticker}: {result.RegularMarketTime}");
+                    }
+                }
+
                 return new StockQuoteDto
                 {
                     Symbol = result.Symbol ?? normalizedTicker,
@@ -104,7 +118,7 @@ namespace PortfolioBalance.Services
                     RegularMarketPrice = result.RegularMarketPrice,
                     RegularMarketChange = result.RegularMarketChange,
                     RegularMarketChangePercent = result.RegularMarketChangePercent,
-                    RegularMarketTime = DateTimeOffset.FromUnixTimeSeconds(result.RegularMarketTime).DateTime,
+                    RegularMarketTime = marketTime,
                     Currency = result.Currency ?? "BRL"
                 };
             }
@@ -131,7 +145,7 @@ namespace PortfolioBalance.Services
             public decimal RegularMarketPrice { get; set; }
             public decimal RegularMarketChange { get; set; }
             public decimal RegularMarketChangePercent { get; set; }
-            public long RegularMarketTime { get; set; }
+            public string? RegularMarketTime { get; set; } // Changed from long to string (Brapi now returns ISO 8601)
             public string? Currency { get; set; }
         }
     }
