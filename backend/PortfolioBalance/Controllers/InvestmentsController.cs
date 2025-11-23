@@ -48,7 +48,8 @@ public class InvestmentsController : ControllerBase
                 UnitValue = i.UnitValue,
                 Quantity = i.Quantity,
                 Weight = i.Weight,
-                CreatedDate = i.CreatedDate
+                CreatedDate = i.CreatedDate,
+                LastUpdatedDate = i.LastUpdatedDate
             })
             .ToListAsync();
 
@@ -75,7 +76,8 @@ public class InvestmentsController : ControllerBase
                 UnitValue = i.UnitValue,
                 Quantity = i.Quantity,
                 Weight = i.Weight,
-                CreatedDate = i.CreatedDate
+                CreatedDate = i.CreatedDate,
+                LastUpdatedDate = i.LastUpdatedDate
             })
             .FirstOrDefaultAsync();
 
@@ -103,6 +105,8 @@ public class InvestmentsController : ControllerBase
             return BadRequest("Invalid investment type");
         }
 
+        var investmentDate = dto.CreatedDate ?? DateTime.UtcNow;
+
         var investment = new Investment
         {
             UserId = userId.Value,
@@ -112,7 +116,8 @@ public class InvestmentsController : ControllerBase
             UnitValue = dto.UnitValue,
             Quantity = dto.Quantity,
             Weight = dto.Weight,
-            CreatedDate = DateTime.UtcNow
+            CreatedDate = investmentDate,
+            LastUpdatedDate = investmentDate
         };
 
         _context.Investments.Add(investment);
@@ -125,7 +130,7 @@ public class InvestmentsController : ControllerBase
             Value = investment.CurrentValue,
             UnitValue = investment.UnitValue,
             Quantity = investment.Quantity,
-            RecordedDate = DateTime.UtcNow,
+            RecordedDate = investmentDate,
             Notes = "Initial investment"
         };
         _context.InvestmentHistories.Add(history);
@@ -140,7 +145,8 @@ public class InvestmentsController : ControllerBase
             UnitValue = investment.UnitValue,
             Quantity = investment.Quantity,
             Weight = investment.Weight,
-            CreatedDate = investment.CreatedDate
+            CreatedDate = investment.CreatedDate,
+            LastUpdatedDate = investment.LastUpdatedDate
         };
 
         return CreatedAtAction(nameof(GetInvestment), new { id = investment.Id }, result);
@@ -172,6 +178,7 @@ public class InvestmentsController : ControllerBase
         investment.UnitValue = dto.UnitValue;
         investment.Quantity = dto.Quantity;
         investment.Weight = dto.Weight;
+        investment.LastUpdatedDate = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
 

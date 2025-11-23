@@ -30,6 +30,7 @@
 
                 <div class="actions">
                     <button id="addInvestmentBtn" class="btn btn-primary">Adicionar Investimento</button>
+                    <button id="updateAllStocksBtn" class="btn btn-secondary">Atualizar Todas as Ações e FIIs</button>
                 </div>
 
                 <div class="filter-section">
@@ -74,6 +75,12 @@
                             <br>Requer token da API Brapi (configure em appsettings.json)
                         </span>
                     </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="investmentDate">Data do Investimento*</label>
+                    <input type="date" id="investmentDate" required>
+                    <small>Data em que o investimento foi realizado. Por padrão usa a data de hoje.</small>
                 </div>
 
                 <div class="form-group" id="stockLookupGroup" style="display: none;">

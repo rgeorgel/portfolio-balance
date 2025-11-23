@@ -79,6 +79,7 @@ function renderInvestmentsTable() {
                     <th>Valor Atual</th>
                     <th>Peso</th>
                     <th>Data de Criação</th>
+                    <th>Última Atualização</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -87,7 +88,8 @@ function renderInvestmentsTable() {
 
     investments.forEach(investment => {
         const type = investmentTypes.find(t => t.id === investment.investmentTypeId);
-        const date = new Date(investment.createdDate).toLocaleDateString('pt-BR');
+        const createdDate = new Date(investment.createdDate).toLocaleDateString('pt-BR');
+        const lastUpdatedDate = new Date(investment.lastUpdatedDate).toLocaleDateString('pt-BR');
 
         tableHtml += `
             <tr>
@@ -95,7 +97,8 @@ function renderInvestmentsTable() {
                 <td>${type ? type.name : 'Desconhecido'}</td>
                 <td>${formatCurrency(investment.currentValue)}</td>
                 <td>${investment.weight}</td>
-                <td>${date}</td>
+                <td>${createdDate}</td>
+                <td>${lastUpdatedDate}</td>
                 <td>
                     <button class="btn btn-secondary" onclick="viewHistory(${investment.id})">Histórico</button>
                     <button class="btn btn-edit" onclick="editInvestment(${investment.id})">Editar</button>
@@ -159,6 +162,12 @@ function openModal(investmentId = null) {
             document.getElementById('investmentValue').value = investment.currentValue;
             document.getElementById('investmentWeight').value = investment.weight;
 
+            // Set investment date (convert from ISO format to date input format)
+            const createdDate = new Date(investment.createdDate);
+            document.getElementById('investmentDate').value = createdDate.toISOString().split('T')[0];
+            // Disable date field in edit mode (can't change creation date)
+            document.getElementById('investmentDate').disabled = true;
+
             // Load unit value and quantity if available
             if (investment.unitValue !== null && investment.unitValue !== undefined) {
                 document.getElementById('unitValue').value = investment.unitValue;
@@ -179,6 +188,12 @@ function openModal(investmentId = null) {
         // Add mode
         title.textContent = 'Adicionar Investimento';
         document.getElementById('investmentWeight').value = '1';
+
+        // Set default date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('investmentDate').value = today;
+        // Enable date field in add mode
+        document.getElementById('investmentDate').disabled = false;
     }
 
     modal.style.display = 'block';
@@ -209,6 +224,15 @@ async function handleFormSubmit(event) {
     }
     if (quantity !== '' && quantity !== null) {
         data.quantity = parseFloat(quantity);
+    }
+
+    // Add created date when creating a new investment
+    if (!investmentId) {
+        const investmentDate = document.getElementById('investmentDate').value;
+        if (investmentDate) {
+            // Convert to ISO format with time (beginning of day in UTC)
+            data.createdDate = new Date(investmentDate + 'T00:00:00Z').toISOString();
+        }
     }
 
     try {
@@ -383,6 +407,94 @@ async function fetchStockQuote() {
     }
 }
 
+async function updateAllStocks() {
+    const updateBtn = document.getElementById('updateAllStocksBtn');
+
+    // Get all investments that are stocks (type 1) or FIIs (type 2)
+    const stockInvestments = investments.filter(inv =>
+        inv.investmentTypeId === 1 || inv.investmentTypeId === 2
+    );
+
+    if (stockInvestments.length === 0) {
+        alert('Nenhuma ação ou FII encontrado para atualizar.');
+        return;
+    }
+
+    // Confirm with user
+    if (!confirm(`Deseja atualizar ${stockInvestments.length} ações/FIIs? Isso pode levar alguns segundos.`)) {
+        return;
+    }
+
+    updateBtn.disabled = true;
+    updateBtn.textContent = 'Atualizando...';
+
+    let successCount = 0;
+    let errorCount = 0;
+    const errors = [];
+
+    for (const investment of stockInvestments) {
+        try {
+            // Fetch current quote
+            const response = await fetchWithAuth(`${API_BASE_URL}/stockquotes/${investment.name}`);
+
+            if (!response.ok) {
+                if (response.status === 402) {
+                    errors.push(`${investment.name}: Token da API necessário`);
+                } else if (response.status === 404) {
+                    errors.push(`${investment.name}: Cotação não encontrada`);
+                } else {
+                    errors.push(`${investment.name}: Erro ${response.status}`);
+                }
+                errorCount++;
+                continue;
+            }
+
+            const quote = await response.json();
+
+            // Update investment with new price
+            const updateData = {
+                name: investment.name,
+                currentValue: investment.quantity ? quote.regularMarketPrice * investment.quantity : quote.regularMarketPrice,
+                unitValue: quote.regularMarketPrice,
+                quantity: investment.quantity || 1,
+                weight: investment.weight
+            };
+
+            const updateResponse = await fetchWithAuth(`${API_BASE_URL}/investments/${investment.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(updateData)
+            });
+
+            if (updateResponse && updateResponse.ok) {
+                successCount++;
+            } else {
+                errors.push(`${investment.name}: Erro ao salvar atualização`);
+                errorCount++;
+            }
+
+        } catch (error) {
+            console.error(`Error updating ${investment.name}:`, error);
+            errors.push(`${investment.name}: ${error.message}`);
+            errorCount++;
+        }
+    }
+
+    // Show results
+    let message = `Atualização concluída!\n\n`;
+    message += `✓ ${successCount} investimento(s) atualizado(s) com sucesso\n`;
+    if (errorCount > 0) {
+        message += `✗ ${errorCount} erro(s)\n\n`;
+        message += `Erros:\n${errors.join('\n')}`;
+    }
+    alert(message);
+
+    // Reload investments to show updated values
+    await loadInvestments();
+
+    updateBtn.disabled = false;
+    updateBtn.textContent = 'Atualizar Todas as Ações e FIIs';
+}
+
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
@@ -406,6 +518,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add event listener for stock quote fetch button
     document.getElementById('fetchStockBtn').addEventListener('click', fetchStockQuote);
+
+    // Add event listener for update all stocks button
+    document.getElementById('updateAllStocksBtn').addEventListener('click', updateAllStocks);
 
     // Close modal when pressing Esc key
     document.addEventListener('keydown', (event) => {

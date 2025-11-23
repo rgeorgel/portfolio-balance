@@ -40,6 +40,9 @@ namespace PortfolioBalance.Migrations
                     b.Property<int>("InvestmentTypeId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime>("LastUpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
