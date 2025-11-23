@@ -10,6 +10,7 @@ public class InvestmentDto
     public decimal? Quantity { get; set; }
     public decimal Weight { get; set; }
     public DateTime CreatedDate { get; set; }
+    public DateTime LastUpdatedDate { get; set; }
 }
 
 public class CreateInvestmentDto
@@ -20,6 +21,7 @@ public class CreateInvestmentDto
     public decimal? UnitValue { get; set; }
     public decimal? Quantity { get; set; }
     public decimal Weight { get; set; } = 1.0m;
+    public DateTime? CreatedDate { get; set; }
 }
 
 public class UpdateInvestmentDto
