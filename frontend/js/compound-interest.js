@@ -1,6 +1,7 @@
 // Compound Interest Calculator
 
 const STORAGE_KEY = 'compoundInterestData';
+let interestChart = null;
 
 // Load saved data from localStorage on page load
 window.addEventListener('DOMContentLoaded', () => {
@@ -113,6 +114,9 @@ function displayResults(finalTotal, totalInvested, totalInterest, monthlyData) {
     document.getElementById('totalInvested').textContent = formatCurrency(totalInvested);
     document.getElementById('totalInterest').textContent = formatCurrency(totalInterest);
 
+    // Create/update chart
+    createChart(monthlyData, totalInvested);
+
     // Generate monthly table
     const tableBody = document.getElementById('monthlyTableBody');
     tableBody.innerHTML = '';
@@ -135,6 +139,125 @@ function displayResults(finalTotal, totalInvested, totalInterest, monthlyData) {
     document.getElementById('calculationResults').scrollIntoView({
         behavior: 'smooth',
         block: 'start'
+    });
+}
+
+// Create or update the evolution chart
+function createChart(monthlyData, finalTotalInvested) {
+    const ctx = document.getElementById('interestChart').getContext('2d');
+
+    // Prepare data for the chart
+    const labels = monthlyData.map(d => `Mês ${d.month}`);
+
+    // Calculate accumulated invested value for each month
+    const initialValue = monthlyData[0].contribution;
+    const monthlyContribution = monthlyData.length > 1 ? monthlyData[1].contribution : 0;
+
+    const investedValues = monthlyData.map((d, index) => {
+        return initialValue + (monthlyContribution * index);
+    });
+
+    // Calculate interest values for each month
+    const interestValues = monthlyData.map((d, index) => {
+        return d.balance - investedValues[index];
+    });
+
+    const totalAccumulated = monthlyData.map(d => d.balance);
+
+    // Destroy previous chart if it exists
+    if (interestChart) {
+        interestChart.destroy();
+    }
+
+    // Create new chart
+    interestChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Total Acumulado',
+                    data: totalAccumulated,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.1,
+                    fill: true
+                },
+                {
+                    label: 'Valor Investido',
+                    data: investedValues,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.1,
+                    fill: true
+                },
+                {
+                    label: 'Total em Juros',
+                    data: interestValues,
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.1,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 2,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 15
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += formatCurrency(context.parsed.y);
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Tempo'
+                    },
+                    ticks: {
+                        maxTicksLimit: 12
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Valor (R$)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return 'R$ ' + value.toLocaleString('pt-BR');
+                        }
+                    }
+                }
+            }
+        }
     });
 }
 
