@@ -23,6 +23,7 @@ function loadSavedData() {
             document.getElementById('monthlyValue').value = data.monthlyValue || '';
             document.getElementById('interestRate').value = data.interestRate || '';
             document.getElementById('period').value = data.period || '';
+            document.getElementById('periodType').value = data.periodType || 'months';
         } catch (error) {
             console.error('Error loading saved data:', error);
         }
@@ -35,7 +36,8 @@ function saveData() {
         initialValue: document.getElementById('initialValue').value,
         monthlyValue: document.getElementById('monthlyValue').value,
         interestRate: document.getElementById('interestRate').value,
-        period: document.getElementById('period').value
+        period: document.getElementById('period').value,
+        periodType: document.getElementById('periodType').value
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
@@ -45,14 +47,22 @@ function calculateCompoundInterest() {
     // Get form values
     const initialValue = parseFloat(document.getElementById('initialValue').value) || 0;
     const monthlyValue = parseFloat(document.getElementById('monthlyValue').value) || 0;
-    const interestRate = parseFloat(document.getElementById('interestRate').value) || 0;
-    const period = parseInt(document.getElementById('period').value) || 0;
+    const annualInterestRate = parseFloat(document.getElementById('interestRate').value) || 0;
+    const periodValue = parseInt(document.getElementById('period').value) || 0;
+    const periodType = document.getElementById('periodType').value;
 
     // Validate inputs
-    if (period < 1) {
+    if (periodValue < 1) {
         alert('O período deve ser maior que 0');
         return;
     }
+
+    // Convert period to months if needed
+    const periodInMonths = periodType === 'years' ? periodValue * 12 : periodValue;
+
+    // Convert annual interest rate to monthly rate
+    // Formula: (1 + annual_rate)^(1/12) - 1
+    const monthlyInterestRate = Math.pow(1 + (annualInterestRate / 100), 1/12) - 1;
 
     // Save data to localStorage
     saveData();
@@ -71,13 +81,13 @@ function calculateCompoundInterest() {
     });
 
     // Calculate for each month
-    for (let month = 1; month <= period; month++) {
+    for (let month = 1; month <= periodInMonths; month++) {
         // Add monthly contribution
         currentBalance += monthlyValue;
         totalInvested += monthlyValue;
 
-        // Calculate interest
-        const monthInterest = currentBalance * (interestRate / 100);
+        // Calculate interest using monthly rate
+        const monthInterest = currentBalance * monthlyInterestRate;
         currentBalance += monthInterest;
 
         monthlyData.push({

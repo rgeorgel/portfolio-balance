@@ -32,24 +32,34 @@
 
                 <div class="calculator-input">
                     <form id="compoundInterestForm">
-                        <div class="form-group">
-                            <label for="initialValue">Valor Inicial (R$)*</label>
-                            <input type="number" id="initialValue" step="0.01" min="0" required>
+                        <div class="form-row-grid">
+                            <div class="form-group">
+                                <label for="initialValue">Valor Inicial (R$)*</label>
+                                <input type="number" id="initialValue" step="0.01" min="0" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="monthlyValue">Aporte Mensal (R$)*</label>
+                                <input type="number" id="monthlyValue" step="0.01" min="0" required>
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="monthlyValue">Aporte Mensal (R$)*</label>
-                            <input type="number" id="monthlyValue" step="0.01" min="0" required>
-                        </div>
+                        <div class="form-row-grid">
+                            <div class="form-group">
+                                <label for="interestRate">Taxa de Juros (% ao ano)*</label>
+                                <input type="number" id="interestRate" step="0.01" min="0" required>
+                            </div>
 
-                        <div class="form-group">
-                            <label for="interestRate">Taxa de Juros (% ao mês)*</label>
-                            <input type="number" id="interestRate" step="0.01" min="0" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="period">Período (meses)*</label>
-                            <input type="number" id="period" step="1" min="1" max="600" required>
+                            <div class="form-group">
+                                <label for="period">Período*</label>
+                                <div class="period-input-group">
+                                    <input type="number" id="period" step="1" min="1" max="600" required>
+                                    <select id="periodType">
+                                        <option value="months">Meses</option>
+                                        <option value="years">Anos</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
                         <button type="submit" class="btn btn-primary">Calcular</button>

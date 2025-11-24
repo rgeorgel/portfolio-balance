@@ -731,4 +731,78 @@ table tr:hover {
     .form-group {
         margin-bottom: 15px;
     }
+
+    .form-row-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .period-input-group {
+        flex-direction: column;
+    }
+
+    .period-input-group input,
+    .period-input-group select {
+        width: 100%;
+    }
+}
+
+/* Compound Interest Calculator Styles */
+.form-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.period-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.period-input-group input {
+    flex: 2;
+    width: auto;
+}
+
+.period-input-group select {
+    flex: 1;
+    width: auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.monthly-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.monthly-table th,
+.monthly-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.monthly-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.monthly-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.monthly-table .highlight {
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.summary-item.highlight {
+    background-color: #d4edda;
+    border-radius: 4px;
+    padding: 10px;
 }
