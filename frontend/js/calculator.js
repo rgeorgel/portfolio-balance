@@ -47,6 +47,17 @@ function displayResults(result) {
     container.innerHTML = '';
 
     result.allocations.forEach(allocation => {
+        // Filter investment allocations to only show values >= 100
+        let validInvestmentAllocations = [];
+        if (allocation.investmentAllocations && allocation.investmentAllocations.length > 0) {
+            validInvestmentAllocations = allocation.investmentAllocations.filter(inv => inv.amountToInvest >= 100);
+        }
+
+        // Skip this allocation type if there are no valid suggestions (>= 100)
+        if (validInvestmentAllocations.length === 0 && allocation.amountToInvest < 100) {
+            return;
+        }
+
         let allocationHtml = `
             <div class="allocation-result">
                 <h4>${allocation.investmentTypeName}</h4>
@@ -79,14 +90,14 @@ function displayResults(result) {
                 </div>
         `;
 
-        // Add individual investment allocations
-        if (allocation.investmentAllocations && allocation.investmentAllocations.length > 0) {
+        // Add individual investment allocations (only those >= 100)
+        if (validInvestmentAllocations.length > 0) {
             allocationHtml += `
                 <div class="investment-allocations">
                     <h5>Distribuição entre Investimentos:</h5>
             `;
 
-            allocation.investmentAllocations.forEach(inv => {
+            validInvestmentAllocations.forEach(inv => {
                 allocationHtml += `
                     <div class="investment-item">
                         <div>
@@ -101,7 +112,7 @@ function displayResults(result) {
             });
 
             allocationHtml += `</div>`;
-        } else if (allocation.amountToInvest > 0) {
+        } else if (allocation.amountToInvest >= 100) {
             allocationHtml += `
                 <div class="investment-allocations">
                     <p style="color: #e67e22; font-style: italic;">

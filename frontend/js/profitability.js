@@ -1,6 +1,7 @@
 // Global variables for charts
 let roiByTypeChart = null;
 let returnsDistributionChart = null;
+let allInvestments = []; // Store all investments for filtering
 
 // Format currency
 function formatCurrency(value) {
@@ -285,6 +286,53 @@ function createPerformerItem(investment, rank, isTop) {
 
 // Update investments table
 function updateInvestmentsTable(investments) {
+    // Store all investments globally for filtering
+    allInvestments = investments;
+
+    // Populate investment type filter
+    populateInvestmentTypeFilter(investments);
+
+    // Display the table
+    displayInvestmentsTable(investments);
+}
+
+// Populate investment type filter dropdown
+function populateInvestmentTypeFilter(investments) {
+    const typeFilter = document.getElementById('investmentTypeFilter');
+    const currentValue = typeFilter.value;
+
+    // Get unique investment types
+    const types = [...new Set(investments.map(inv => inv.investmentTypeName))].sort();
+
+    // Clear and repopulate options
+    typeFilter.innerHTML = '<option value="">Todos os tipos</option>';
+    types.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        option.textContent = type;
+        typeFilter.appendChild(option);
+    });
+
+    // Restore previous selection if it still exists
+    if (currentValue && types.includes(currentValue)) {
+        typeFilter.value = currentValue;
+    }
+}
+
+// Filter investments table based on selected type
+function filterInvestmentsTable() {
+    const selectedType = document.getElementById('investmentTypeFilter').value;
+
+    let filteredInvestments = allInvestments;
+    if (selectedType) {
+        filteredInvestments = allInvestments.filter(inv => inv.investmentTypeName === selectedType);
+    }
+
+    displayInvestmentsTable(filteredInvestments);
+}
+
+// Display investments in the table
+function displayInvestmentsTable(investments) {
     const tbody = document.getElementById('investmentsTableBody');
     tbody.innerHTML = '';
 
