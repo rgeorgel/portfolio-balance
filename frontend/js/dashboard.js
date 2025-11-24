@@ -69,7 +69,10 @@ function renderAllocationChart() {
 
     const totalValue = investmentTypes.reduce((sum, type) => sum + type.currentTotalValue, 0);
 
-    investmentTypes.forEach(type => {
+    // Filter to only show types with investments
+    const typesWithInvestments = investmentTypes.filter(type => type.currentTotalValue > 0);
+
+    typesWithInvestments.forEach(type => {
         const currentPercentage = totalValue > 0
             ? (type.currentTotalValue / totalValue) * 100
             : 0;
@@ -197,10 +200,13 @@ function renderAllocationComparisonChart() {
         allocationComparisonChart.destroy();
     }
 
+    // Filter to only show types with investments
+    const typesWithInvestments = investmentTypes.filter(type => type.currentTotalValue > 0);
+
     // Prepare data
-    const labels = investmentTypes.map(type => type.name);
-    const targetData = investmentTypes.map(type => type.allocationPercentage);
-    const currentData = investmentTypes.map(type =>
+    const labels = typesWithInvestments.map(type => type.name);
+    const targetData = typesWithInvestments.map(type => type.allocationPercentage);
+    const currentData = typesWithInvestments.map(type =>
         totalValue > 0 ? (type.currentTotalValue / totalValue) * 100 : 0
     );
 

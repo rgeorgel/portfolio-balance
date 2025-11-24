@@ -15,7 +15,7 @@
                 <a href="index.html">Dashboard</a>
                 <a href="allocations.html">Alocações</a>
                 <a href="investments.html">Investimentos</a>
-                <a href="calculator.html">Calculadora</a>
+                <a href="calculator.html">Novo aporte</a>
                 <a href="history.html">Histórico</a>
                 <a href="profitability.html" class="active">Rentabilidade</a>
                 <div class="user-menu">
@@ -98,6 +98,12 @@
 
             <section class="investments-performance">
                 <h2>Desempenho Individual dos Investimentos</h2>
+                <div class="filter-controls">
+                    <label for="investmentTypeFilter">Filtrar por tipo:</label>
+                    <select id="investmentTypeFilter" onchange="filterInvestmentsTable()">
+                        <option value="">Todos os tipos</option>
+                    </select>
+                </div>
                 <div class="table-container">
                     <table id="investmentsTable">
                         <thead>
