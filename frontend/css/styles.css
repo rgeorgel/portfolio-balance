@@ -112,7 +112,8 @@ nav a.active {
     min-width: 180px;
     border-radius: 4px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    margin-top: 5px;
+    margin-top: 0;
+    padding-top: 5px;
     z-index: 1000;
 }
 
@@ -131,6 +132,7 @@ nav a.active {
 
 .dropdown-menu a:first-child {
     border-radius: 4px 4px 0 0;
+    padding-top: 10px;
 }
 
 .dropdown-menu a:last-child {
