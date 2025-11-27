@@ -811,3 +811,34 @@ table tr:hover {
     border-radius: 4px;
     padding: 10px;
 }
+
+/* Transactions Styles */
+.info-text {
+    background-color: #e8f4f8;
+    border-left: 4px solid #3498db;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    color: #2c3e50;
+}
+
+.transaction-deposit {
+    background-color: #d4edda !important;
+}
+
+.transaction-withdrawal {
+    background-color: #f8d7da !important;
+}
+
+.transaction-dividend {
+    background-color: #fff3cd !important;
+}
+
+.transactions-section textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    resize: vertical;
+}

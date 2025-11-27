@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PortfolioBalance.Data;
 using PortfolioBalance.DTOs;
+using PortfolioBalance.Models;
 
 namespace PortfolioBalance.Services;
 
@@ -21,6 +22,7 @@ public class ProfitabilityService
         var investment = await _context.Investments
             .Include(i => i.InvestmentType)
             .Include(i => i.InvestmentHistories)
+            .Include(i => i.InvestmentTransactions)
             .FirstOrDefaultAsync(i => i.Id == investmentId && i.UserId == userId);
 
         if (investment == null)
@@ -28,6 +30,26 @@ public class ProfitabilityService
             return null;
         }
 
+        // Check if investment has transactions registered
+        var hasTransactions = investment.InvestmentTransactions.Any();
+
+        if (hasTransactions)
+        {
+            // Use transaction-based calculation (accounts for deposits/withdrawals)
+            return CalculateProfitabilityWithTransactions(investment);
+        }
+        else
+        {
+            // Use simple calculation based on history
+            return CalculateProfitabilitySimple(investment);
+        }
+    }
+
+    /// <summary>
+    /// Calculates profitability using simple method (first vs last history record)
+    /// </summary>
+    private InvestmentProfitabilityDto CalculateProfitabilitySimple(Models.Investment investment)
+    {
         var history = investment.InvestmentHistories
             .OrderBy(h => h.RecordedDate)
             .ToList();
@@ -80,6 +102,75 @@ public class ProfitabilityService
     }
 
     /// <summary>
+    /// Calculates profitability considering transactions (deposits, withdrawals, dividends)
+    /// Uses Money-Weighted Return approach
+    /// </summary>
+    private InvestmentProfitabilityDto CalculateProfitabilityWithTransactions(Models.Investment investment)
+    {
+        var transactions = investment.InvestmentTransactions
+            .OrderBy(t => t.TransactionDate)
+            .ToList();
+
+        var history = investment.InvestmentHistories
+            .OrderBy(h => h.RecordedDate)
+            .ToList();
+
+        if (transactions.Count == 0)
+        {
+            // No transactions, fallback to simple calculation
+            return CalculateProfitabilitySimple(investment);
+        }
+
+        var firstTransaction = transactions.First();
+        var lastTransaction = transactions.Last();
+        var firstDate = firstTransaction.TransactionDate;
+        var lastDate = history.Any() ? history.Last().RecordedDate : DateTime.UtcNow;
+
+        // Calculate total invested (deposits - withdrawals)
+        decimal totalDeposits = transactions
+            .Where(t => t.Type == TransactionType.Deposit)
+            .Sum(t => t.Amount);
+
+        decimal totalWithdrawals = transactions
+            .Where(t => t.Type == TransactionType.Withdrawal)
+            .Sum(t => t.Amount);
+
+        decimal totalDividends = transactions
+            .Where(t => t.Type == TransactionType.Dividend)
+            .Sum(t => t.Amount);
+
+        decimal totalInvested = totalDeposits - totalWithdrawals;
+
+        // Get current value from last history record or current investment value
+        decimal currentValue = history.Any() ? history.Last().Value : investment.CurrentValue;
+
+        // Calculate returns
+        // Absolute return = (Current Value + Total Withdrawals + Total Dividends) - Total Deposits
+        decimal absoluteReturn = (currentValue + totalWithdrawals + totalDividends) - totalDeposits;
+
+        // Return percentage = Absolute Return / Total Invested * 100
+        decimal returnPercentage = totalInvested != 0 ? (absoluteReturn / totalInvested) * 100 : 0;
+
+        var periodDays = (int)(lastDate - firstDate).TotalDays;
+        var annualizedReturn = CalculateAnnualizedReturn(totalInvested, currentValue, periodDays);
+
+        return new InvestmentProfitabilityDto
+        {
+            InvestmentId = investment.Id,
+            InvestmentName = investment.Name,
+            InvestmentTypeName = investment.InvestmentType?.Name ?? "Unknown",
+            InitialValue = totalInvested,
+            CurrentValue = currentValue,
+            AbsoluteReturn = absoluteReturn,
+            ReturnPercentage = returnPercentage,
+            AnnualizedReturn = annualizedReturn,
+            InvestmentPeriodDays = periodDays,
+            FirstRecordedDate = firstDate,
+            LastRecordedDate = lastDate
+        };
+    }
+
+    /// <summary>
     /// Calculates overall portfolio profitability with breakdowns
     /// </summary>
     public async Task<PortfolioProfitabilityDto> GetPortfolioProfitabilityAsync(int userId, DateTime? startDate = null, DateTime? endDate = null)
@@ -87,6 +178,7 @@ public class ProfitabilityService
         var investments = await _context.Investments
             .Include(i => i.InvestmentType)
             .Include(i => i.InvestmentHistories)
+            .Include(i => i.InvestmentTransactions)
             .Where(i => i.UserId == userId)
             .ToListAsync();
 
@@ -98,52 +190,71 @@ public class ProfitabilityService
 
         foreach (var investment in investments)
         {
-            var history = investment.InvestmentHistories
-                .Where(h => (!startDate.HasValue || h.RecordedDate >= startDate.Value) &&
-                           (!endDate.HasValue || h.RecordedDate <= endDate.Value))
-                .OrderBy(h => h.RecordedDate)
-                .ToList();
+            InvestmentProfitabilityDto? profitability;
 
-            if (history.Count == 0)
+            // Check if investment has transactions
+            var hasTransactions = investment.InvestmentTransactions.Any();
+
+            if (hasTransactions)
             {
-                // No history in this date range, skip or use current value
-                continue;
+                // Use transaction-based calculation
+                profitability = CalculateProfitabilityWithTransactions(investment);
+            }
+            else
+            {
+                // Use simple calculation with date filtering
+                var history = investment.InvestmentHistories
+                    .Where(h => (!startDate.HasValue || h.RecordedDate >= startDate.Value) &&
+                               (!endDate.HasValue || h.RecordedDate <= endDate.Value))
+                    .OrderBy(h => h.RecordedDate)
+                    .ToList();
+
+                if (history.Count == 0)
+                {
+                    // No history in this date range, skip
+                    continue;
+                }
+
+                var firstRecord = history.First();
+                var lastRecord = history.Last();
+                var initialValue = firstRecord.Value;
+                var currentValue = lastRecord.Value;
+                var firstDate = firstRecord.RecordedDate;
+                var lastDate = lastRecord.RecordedDate;
+                var periodDays = (int)(lastDate - firstDate).TotalDays;
+
+                var absoluteReturn = currentValue - initialValue;
+                var returnPercentage = initialValue != 0 ? (absoluteReturn / initialValue) * 100 : 0;
+                var annualizedReturn = CalculateAnnualizedReturn(initialValue, currentValue, periodDays);
+
+                profitability = new InvestmentProfitabilityDto
+                {
+                    InvestmentId = investment.Id,
+                    InvestmentName = investment.Name,
+                    InvestmentTypeName = investment.InvestmentType?.Name ?? "Unknown",
+                    InitialValue = initialValue,
+                    CurrentValue = currentValue,
+                    AbsoluteReturn = absoluteReturn,
+                    ReturnPercentage = returnPercentage,
+                    AnnualizedReturn = annualizedReturn,
+                    InvestmentPeriodDays = periodDays,
+                    FirstRecordedDate = firstDate,
+                    LastRecordedDate = lastDate
+                };
             }
 
-            var firstRecord = history.First();
-            var lastRecord = history.Last();
-            var initialValue = firstRecord.Value;
-            var currentValue = lastRecord.Value;
-            var firstDate = firstRecord.RecordedDate;
-            var lastDate = lastRecord.RecordedDate;
-            var periodDays = (int)(lastDate - firstDate).TotalDays;
-
-            var absoluteReturn = currentValue - initialValue;
-            var returnPercentage = initialValue != 0 ? (absoluteReturn / initialValue) * 100 : 0;
-            var annualizedReturn = CalculateAnnualizedReturn(initialValue, currentValue, periodDays);
-
-            investmentProfitabilities.Add(new InvestmentProfitabilityDto
+            if (profitability != null)
             {
-                InvestmentId = investment.Id,
-                InvestmentName = investment.Name,
-                InvestmentTypeName = investment.InvestmentType?.Name ?? "Unknown",
-                InitialValue = initialValue,
-                CurrentValue = currentValue,
-                AbsoluteReturn = absoluteReturn,
-                ReturnPercentage = returnPercentage,
-                AnnualizedReturn = annualizedReturn,
-                InvestmentPeriodDays = periodDays,
-                FirstRecordedDate = firstDate,
-                LastRecordedDate = lastDate
-            });
+                investmentProfitabilities.Add(profitability);
 
-            totalInitialValue += initialValue;
-            totalCurrentValue += currentValue;
+                totalInitialValue += profitability.InitialValue;
+                totalCurrentValue += profitability.CurrentValue;
 
-            if (!earliestDate.HasValue || firstDate < earliestDate.Value)
-                earliestDate = firstDate;
-            if (!latestDate.HasValue || lastDate > latestDate.Value)
-                latestDate = lastDate;
+                if (!earliestDate.HasValue || profitability.FirstRecordedDate < earliestDate.Value)
+                    earliestDate = profitability.FirstRecordedDate;
+                if (!latestDate.HasValue || profitability.LastRecordedDate > latestDate.Value)
+                    latestDate = profitability.LastRecordedDate;
+            }
         }
 
         var totalAbsoluteReturn = totalCurrentValue - totalInitialValue;
