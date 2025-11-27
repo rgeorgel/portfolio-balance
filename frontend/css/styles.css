@@ -78,6 +78,73 @@ nav a.active {
     background-color: #3498db;
 }
 
+/* Dropdown Menu Styles */
+.nav-item {
+    position: relative;
+}
+
+.nav-item > a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.nav-item > a::after {
+    content: ' ▾';
+    font-size: 12px;
+    margin-left: 4px;
+}
+
+.nav-item > a:hover {
+    background-color: #34495e;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #34495e;
+    min-width: 180px;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-top: 5px;
+    z-index: 1000;
+}
+
+.nav-item:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 16px;
+    display: block;
+    transition: background-color 0.3s;
+    border-radius: 0;
+}
+
+.dropdown-menu a:first-child {
+    border-radius: 4px 4px 0 0;
+}
+
+.dropdown-menu a:last-child {
+    border-radius: 0 0 4px 4px;
+}
+
+.dropdown-menu a:hover {
+    background-color: #2c3e50;
+}
+
+.dropdown-menu a.active {
+    background-color: #3498db;
+}
+
 main {
     background-color: white;
     padding: 30px;
