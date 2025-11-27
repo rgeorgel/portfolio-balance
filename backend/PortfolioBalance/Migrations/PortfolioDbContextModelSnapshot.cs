@@ -109,6 +109,48 @@ namespace PortfolioBalance.Migrations
                     b.ToTable("InvestmentHistories");
                 });
 
+            modelBuilder.Entity("PortfolioBalance.Models.InvestmentTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<int>("InvestmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<decimal?>("Quantity")
+                        .HasPrecision(18, 8)
+                        .HasColumnType("numeric(18,8)");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("UnitValue")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvestmentId");
+
+                    b.HasIndex("TransactionDate");
+
+                    b.ToTable("InvestmentTransactions");
+                });
+
             modelBuilder.Entity("PortfolioBalance.Models.InvestmentType", b =>
                 {
                     b.Property<int>("Id")
@@ -248,6 +290,17 @@ namespace PortfolioBalance.Migrations
                     b.Navigation("Investment");
                 });
 
+            modelBuilder.Entity("PortfolioBalance.Models.InvestmentTransaction", b =>
+                {
+                    b.HasOne("PortfolioBalance.Models.Investment", "Investment")
+                        .WithMany("InvestmentTransactions")
+                        .HasForeignKey("InvestmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Investment");
+                });
+
             modelBuilder.Entity("PortfolioBalance.Models.UserInvestmentTypeAllocation", b =>
                 {
                     b.HasOne("PortfolioBalance.Models.InvestmentType", "InvestmentType")
@@ -270,6 +323,8 @@ namespace PortfolioBalance.Migrations
             modelBuilder.Entity("PortfolioBalance.Models.Investment", b =>
                 {
                     b.Navigation("InvestmentHistories");
+
+                    b.Navigation("InvestmentTransactions");
                 });
 
             modelBuilder.Entity("PortfolioBalance.Models.InvestmentType", b =>

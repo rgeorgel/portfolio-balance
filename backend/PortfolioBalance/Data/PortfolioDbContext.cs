@@ -14,6 +14,7 @@ public class PortfolioDbContext : DbContext
     public DbSet<Investment> Investments { get; set; }
     public DbSet<UserInvestmentTypeAllocation> UserInvestmentTypeAllocations { get; set; }
     public DbSet<InvestmentHistory> InvestmentHistories { get; set; }
+    public DbSet<InvestmentTransaction> InvestmentTransactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -87,6 +88,23 @@ public class PortfolioDbContext : DbContext
 
             entity.HasIndex(e => e.InvestmentId);
             entity.HasIndex(e => e.RecordedDate);
+        });
+
+        modelBuilder.Entity<InvestmentTransaction>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Amount).HasPrecision(18, 2);
+            entity.Property(e => e.UnitValue).HasPrecision(18, 2);
+            entity.Property(e => e.Quantity).HasPrecision(18, 8);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+
+            entity.HasOne(e => e.Investment)
+                .WithMany(i => i.InvestmentTransactions)
+                .HasForeignKey(e => e.InvestmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.InvestmentId);
+            entity.HasIndex(e => e.TransactionDate);
         });
 
         // Seed initial investment types (these are shared across all users)

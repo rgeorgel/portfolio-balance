@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Balance - Transações</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Portfolio Balance</h1>
+            <nav>
+                <a href="index.html">Dashboard</a>
+                <a href="allocations.html">Alocações</a>
+                <a href="investments.html">Investimentos</a>
+                <a href="transactions.html" class="active">Transações</a>
+                <a href="calculator.html">Novo aporte</a>
+                <a href="compound-interest.html">Juros Compostos</a>
+                <a href="history.html">Histórico</a>
+                <a href="profitability.html">Rentabilidade</a>
+                <div class="user-menu">
+                    <span id="username"></span>
+                    <button onclick="logout()" class="btn-logout">Sair</button>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="transactions-section">
+                <h2>Gerenciar Transações</h2>
+                <p class="info-text">
+                    Registre aportes, resgates e dividendos para obter cálculos de rentabilidade mais precisos.
+                    Quando há transações registradas, o sistema calcula a rentabilidade real descontando os aportes.
+                </p>
+
+                <div class="actions">
+                    <button id="addTransactionBtn" class="btn btn-primary">Adicionar Transação</button>
+                </div>
+
+                <div class="filter-section">
+                    <label for="investmentFilter">Filtrar por investimento:</label>
+                    <select id="investmentFilter">
+                        <option value="">Todos</option>
+                    </select>
+
+                    <label for="typeFilter">Filtrar por tipo:</label>
+                    <select id="typeFilter">
+                        <option value="">Todos</option>
+                        <option value="1">Aporte/Compra</option>
+                        <option value="2">Resgate/Venda</option>
+                        <option value="3">Dividendo</option>
+                    </select>
+                </div>
+
+                <div id="transactionsList" class="transactions-table">
+                    <!-- Transactions table will be inserted here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for adding/editing transaction -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Adicionar Transação</h2>
+            <form id="transactionForm">
+                <input type="hidden" id="transactionId">
+
+                <div class="form-group">
+                    <label for="transactionInvestment">Investimento*</label>
+                    <select id="transactionInvestment" required>
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="transactionType">Tipo de Transação*</label>
+                    <select id="transactionType" required>
+                        <option value="">Selecione...</option>
+                        <option value="1">Aporte/Compra</option>
+                        <option value="2">Resgate/Venda</option>
+                        <option value="3">Dividendo</option>
+                    </select>
+                    <small id="typeHint"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="transactionAmount">Valor (R$)*</label>
+                    <input type="number" id="transactionAmount" step="0.01" min="0" required>
+                    <small>Valor total da transação</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="transactionUnitValue">Valor Unitário</label>
+                    <input type="number" id="transactionUnitValue" step="0.01" min="0">
+                    <small>Opcional: Valor da cota/ação no momento da transação</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="transactionQuantity">Quantidade</label>
+                    <input type="number" id="transactionQuantity" step="0.0001" min="0">
+                    <small>Opcional: Quantidade de cotas/ações compradas/vendidas</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="transactionDate">Data*</label>
+                    <input type="datetime-local" id="transactionDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="transactionNotes">Observações</label>
+                    <textarea id="transactionNotes" rows="3"></textarea>
+                    <small>Ex: "Aporte mensal empresa + pessoal", "Resgate parcial para emergência"</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // Check authentication on page load
+        checkAuth();
+
+        // Display username
+        const userInfo = getUserInfo();
+        if (userInfo) {
+            document.getElementById('username').textContent = userInfo.username;
+        }
+    </script>
+    <script src="js/transactions.js"></script>
+</body>
+</html>
