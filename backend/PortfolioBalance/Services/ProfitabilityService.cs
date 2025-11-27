@@ -123,7 +123,14 @@ public class ProfitabilityService
 
         var firstTransaction = transactions.First();
         var lastTransaction = transactions.Last();
+
+        // Determine the start date (earliest between first transaction and first history)
         var firstDate = firstTransaction.TransactionDate;
+        if (history.Any() && history.First().RecordedDate < firstDate)
+        {
+            firstDate = history.First().RecordedDate;
+        }
+
         var lastDate = history.Any() ? history.Last().RecordedDate : DateTime.UtcNow;
 
         // Calculate total invested (deposits - withdrawals)
@@ -139,14 +146,27 @@ public class ProfitabilityService
             .Where(t => t.Type == TransactionType.Dividend)
             .Sum(t => t.Amount);
 
-        decimal totalInvested = totalDeposits - totalWithdrawals;
+        // Add initial investment value from first history record to total deposits
+        // This represents the initial investment that may not have a transaction record
+        decimal initialInvestmentValue = 0;
+        if (history.Any())
+        {
+            var firstHistoryRecord = history.First();
+            // Only include initial value if it's before or at the same time as the first deposit transaction
+            if (firstHistoryRecord.RecordedDate <= firstTransaction.TransactionDate)
+            {
+                initialInvestmentValue = firstHistoryRecord.Value;
+            }
+        }
+
+        decimal totalInvested = initialInvestmentValue + totalDeposits - totalWithdrawals;
 
         // Get current value from last history record or current investment value
         decimal currentValue = history.Any() ? history.Last().Value : investment.CurrentValue;
 
         // Calculate returns
-        // Absolute return = (Current Value + Total Withdrawals + Total Dividends) - Total Deposits
-        decimal absoluteReturn = (currentValue + totalWithdrawals + totalDividends) - totalDeposits;
+        // Absolute return = (Current Value + Total Withdrawals + Total Dividends) - (Initial Investment + Total Deposits)
+        decimal absoluteReturn = (currentValue + totalWithdrawals + totalDividends) - (initialInvestmentValue + totalDeposits);
 
         // Return percentage = Absolute Return / Total Invested * 100
         decimal returnPercentage = totalInvested != 0 ? (absoluteReturn / totalInvested) * 100 : 0;
