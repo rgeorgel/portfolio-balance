@@ -1,9 +1,7 @@
 // API Configuration
-// When running with docker-compose, both frontend (port 8080) and backend (port 5500)
-// are accessible from localhost on the host machine
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:5500/api'
-    : `http://${window.location.hostname}:5500/api`;
+// Uses the same domain and port as the frontend with /api prefix
+// This requires a reverse proxy or routing configuration to forward /api/* to the backend
+const API_BASE_URL = `${window.location.protocol}//${window.location.host}/api`;
 
 // Authentication helper functions
 function getAuthToken() {
