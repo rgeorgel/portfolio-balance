@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Balance - FIRE Tradicional</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Portfolio Balance</h1>
+            <nav>
+                <a href="index.html">Dashboard</a>
+                <div class="nav-item">
+                    <a>Portfólio</a>
+                    <div class="dropdown-menu">
+                        <a href="allocations.html">Alocações</a>
+                        <a href="investments.html">Investimentos</a>
+                        <a href="transactions.html">Transações</a>
+                        <a href="history.html">Histórico</a>
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <a>Calculadoras</a>
+                    <div class="dropdown-menu">
+                        <a href="compound-interest.html">Juros Compostos</a>
+                        <a href="fire-tradicional.html" class="active">FIRE Tradicional</a>
+                    </div>
+                </div>
+                <a href="calculator.html">Novo Aporte</a>
+                <a href="profitability.html">Rentabilidade</a>
+                <div class="user-menu">
+                    <span id="username"></span>
+                    <button onclick="logout()" class="btn-logout">Sair</button>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="calculator-section">
+                <div class="fire-header">
+                    <h2>FIRE Tradicional</h2>
+                    <p class="description">Calcule quanto precisa acumular para alcançar a independência financeira seguindo a regra dos 4%. Descubra quando poderá se aposentar sem depender de salário.</p>
+                </div>
+
+                <div class="calculator-input">
+                    <h3>Parâmetros de Entrada</h3>
+                    <form id="fireTradicionalForm">
+                        <div class="form-row-grid">
+                            <div class="form-group">
+                                <label for="currentBalance">Saldo Mensal Atual (R$)*</label>
+                                <input type="number" id="currentBalance" step="0.01" min="0" required>
+                                <small>Quanto você possui investido atualmente</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="monthlyExpenses">Gastos Mensais (R$)*</label>
+                                <input type="number" id="monthlyExpenses" step="0.01" min="0" required>
+                                <small>Quanto você gasta por mês para manter seu padrão de vida</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row-grid">
+                            <div class="form-group">
+                                <label for="monthlyContribution">Aporte Mensal (R$)*</label>
+                                <input type="number" id="monthlyContribution" step="0.01" min="0" required>
+                                <small>Valor que pretende investir mensalmente</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="expectedReturn">Rentabilidade Anual Esperada (%)*</label>
+                                <input type="number" id="expectedReturn" step="0.01" min="0" required>
+                                <small>Taxa anual de retorno esperado dos investimentos</small>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Calcular</button>
+                        <button type="button" class="btn" onclick="clearForm()">Limpar</button>
+                    </form>
+                </div>
+
+                <div id="calculationResults" class="calculation-results" style="display: none;">
+                    <h3>Resultados</h3>
+
+                    <div class="fire-results-grid">
+                        <div class="fire-result-card primary">
+                            <span class="label">Meta FIRE</span>
+                            <span class="value" id="fireGoal">R$ 0,00</span>
+                            <small>25x seus gastos anuais</small>
+                        </div>
+                        <div class="fire-result-card highlight">
+                            <span class="label">Tempo para FIRE</span>
+                            <span class="value" id="timeToFire">0 anos</span>
+                            <small>0 meses</small>
+                        </div>
+                        <div class="fire-result-card">
+                            <span class="label">Renda Passiva Mensal</span>
+                            <span class="value" id="passiveIncome">R$ 0,00</span>
+                            <small>4% ao ano da meta total</small>
+                        </div>
+                        <div class="fire-result-card">
+                            <span class="label">Total Investido</span>
+                            <span class="value" id="totalInvested">R$ 0,00</span>
+                        </div>
+                        <div class="fire-result-card success">
+                            <span class="label">Crescimento</span>
+                            <span class="value" id="totalGrowth">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <h3>Projeção FIRE Tradicional</h3>
+                    <div class="chart-container">
+                        <canvas id="fireChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section class="info-section">
+                <h2>O que é FIRE Tradicional?</h2>
+                <div class="info-content">
+                    <p>FIRE (Financial Independence, Retire Early) Tradicional é uma estratégia que visa alcançar a independência financeira através da regra dos 4%, onde você precisa acumular 25 vezes seus gastos anuais para poder viver dos rendimentos dos seus investimentos.</p>
+
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h3>📊 Regra dos 4%</h3>
+                            <p>A regra dos 4% determina que você pode sacar 4% do seu portfólio anualmente sem comprometer o capital no longo prazo.</p>
+                            <ul>
+                                <li>Baseia-se no estudo de Trinity</li>
+                                <li>Período testado: 30+ anos de aposentadoria</li>
+                                <li>Taxa de sucesso histórica: >95%</li>
+                            </ul>
+                        </div>
+
+                        <div class="info-card">
+                            <h3>📈 Meta 25x</h3>
+                            <p>Para atingir a meta dos 4%, você precisa acumular 25 vezes seus gastos anuais (ou 300x seus gastos mensais).</p>
+                            <ul>
+                                <li>Exemplo: Gasta R$ 8.000/mês → Meta: R$ 2.400.000</li>
+                                <li>Calcule: Gastos anuais × 25</li>
+                                <li>Objetivo: Viver da rentabilidade sem tocar no principal</li>
+                            </ul>
+                        </div>
+
+                        <div class="info-card">
+                            <h3>⏰ Cronologia Típica</h3>
+                            <p>O tempo para atingir FIRE varia conforme a taxa de poupança e rentabilidade dos investimentos.</p>
+                            <ul>
+                                <li>Taxa 20%: ~30-40 anos para FIRE</li>
+                                <li>Taxa 30%: ~25-30 anos para FIRE</li>
+                                <li>Taxa 50%: ~15-20 anos para FIRE</li>
+                                <li>Taxa 70%: ~8-10 anos para FIRE</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="strategy-section">
+                <h2>Estratégia de Investimento para FIRE</h2>
+                <div class="strategy-grid">
+                    <div class="strategy-card">
+                        <h3>Portfólio Diversificado</h3>
+                        <p>Monte uma carteira balanceada para suportar suas aposentadoria:</p>
+                        <ul>
+                            <li><strong>Ações (50-80%): </strong>Crescimento de longo prazo através de ações nacionais e internacionais</li>
+                            <li><strong>Renda Fixa (20-30%): </strong>Tesouro Direto, CDBs e outros ativos para estabilidade</li>
+                            <li><strong>FIIs (5-15%): </strong>Fundos imobiliários para diversificação</li>
+                            <li><strong>Reserva de Emergência: </strong>6-12 meses de gastos em liquidez imediata</li>
+                            <li><strong>Rebalanceamento: </strong>Ajuste trimestralmente ou semestralmente a alocação</li>
+                        </ul>
+                    </div>
+
+                    <div class="strategy-card">
+                        <h3>Otimização Fiscal</h3>
+                        <p>Maximize sua eficiência tributária ao caminhar para FIRE:</p>
+                        <ul>
+                            <li><strong>Previdência Privada: </strong>PGBL/VGBL para diferimento tributário</li>
+                            <li><strong>Tesouro Direto: </strong>Títulos com tributação regressiva para longo prazo</li>
+                            <li><strong>Buy and Hold: </strong>Evite giro excessivo para minimizar tributos</li>
+                            <li><strong>FIIs: </strong>Aproveite a isenção de IR sobre dividendos</li>
+                            <li><strong>Planejamento Sucessório: </strong>Estruture para otimizar a transferência futura</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="faq-section">
+                <h2>Perguntas Frequentes sobre FIRE Tradicional</h2>
+                <div class="faq-list">
+                    <details class="faq-item">
+                        <summary>Como funciona exatamente a regra dos 4%?</summary>
+                        <p>A regra dos 4% sugere que você pode retirar 4% do valor total do seu portfólio no primeiro ano de aposentadoria, e ajustar esse valor pela inflação nos anos seguintes, mantendo uma alta probabilidade de não esgotar seus recursos por pelo menos 30 anos. Isso significa que você precisa acumular 25 vezes seus gastos anuais (1/0.04 = 25).</p>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Quanto dinheiro preciso para FIRE tradicional?</summary>
+                        <p>Você precisa acumular 25 vezes seus gastos anuais. Por exemplo, se você gasta R$ 8.000 por mês (R$ 96.000 por ano), sua meta FIRE seria R$ 2.400.000. Com esse montante investido rendendo em média 4% real ao ano, você conseguiria manter seu padrão de vida indefinidamente.</p>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Quanto tempo leva para atingir FIRE?</summary>
+                        <p>O tempo depende principalmente da sua taxa de poupança e rentabilidade dos investimentos. Com uma taxa de poupança de 50% e rentabilidade real de 6% ao ano, você pode atingir FIRE em cerca de 15-17 anos. Aumentar a taxa de poupança tem um impacto maior do que aumentar a rentabilidade.</p>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>A regra dos 4% é segura no Brasil?</summary>
+                        <p>A regra dos 4% foi desenvolvida com base no mercado americano. No Brasil, devido à maior volatilidade e inflação histórica, alguns especialistas sugerem usar uma taxa mais conservadora de 3-3.5% (equivalente a acumular 28-33x seus gastos anuais). É importante considerar o cenário econômico brasileiro ao planejar.</p>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Qual é melhor alocação de investimentos para FIRE?</summary>
+                        <p>Uma alocação comum é 60-70% em ações (para crescimento) e 30-40% em renda fixa (para estabilidade). Conforme você se aproxima da aposentadoria, é comum aumentar gradualmente a alocação em renda fixa. A diversificação geográfica e entre classes de ativos também é importante para reduzir riscos.</p>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary>Preciso viver de forma extremamente frugal para FIRE?</summary>
+                        <p>Não necessariamente. FIRE não é apenas sobre viver com o mínimo possível. Trata-se de escolher conscientemente onde gastar seu dinheiro, eliminando despesas que não agregam valor à sua vida, enquanto mantém gastos que realmente importam para você. A chave é encontrar um equilíbrio sustentável entre qualidade de vida e taxa de poupança.</p>
+                    </details>
+                </div>
+            </section>
+
+            <section class="considerations-section">
+                <h2>⚠️ Considerações Importantes sobre FIRE Tradicional</h2>
+                <div class="considerations-content">
+                    <div class="consideration-item">
+                        <h3>Cenários Econômicos Variáveis</h3>
+                        <p><strong>Cuidado:</strong> A rentabilidade pode variar ao longo do tempo. Períodos prolongados de baixa rentabilidade ou alta inflação podem afetar sua estratégia de saque. Ajuste sua estratégia de acordo.</p>
+                    </div>
+
+                    <div class="consideration-item">
+                        <h3>Flexibilidade Necessária</h3>
+                        <p>Seja flexível durante crises econômicas. Se uma crise atingir seus investimentos durante os primeiros anos de aposentadoria, considere reduzir temporariamente os saques ou retornar ao mercado de trabalho por algum tempo.</p>
+                    </div>
+
+                    <div class="consideration-item">
+                        <h3>Planejamento de Saúde</h3>
+                        <p>Considere custos com saúde que tendem a aumentar com a idade. Inclua um buffer adicional ao seguir seu planejamento para FIRE ou mantenha uma reserva específica para saúde.</p>
+                    </div>
+
+                    <div class="consideration-item">
+                        <h3>Propósito Pós-FIRE</h3>
+                        <p>FIRE não é apenas sobre deixar de trabalhar, mas sobre ter a liberdade de escolher como você quer viver. Tenha um plano para uma vida propositada após alcançar a independência financeira.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // Check authentication on page load
+        checkAuth();
+
+        // Display username
+        const userInfo = getUserInfo();
+        if (userInfo) {
+            document.getElementById('username').textContent = userInfo.username;
+        }
+    </script>
+    <script src="js/fire-tradicional.js"></script>
+</body>
+</html>
