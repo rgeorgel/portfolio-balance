@@ -117,131 +117,183 @@
                 </div>
             </section>
 
-            <section class="info-section">
-                <h2>O que é FIRE Tradicional?</h2>
-                <div class="info-content">
-                    <p>FIRE (Financial Independence, Retire Early) Tradicional é uma estratégia que visa alcançar a independência financeira através da regra dos 4%, onde você precisa acumular 25 vezes seus gastos anuais para poder viver dos rendimentos dos seus investimentos.</p>
-
-                    <div class="info-grid">
-                        <div class="info-card">
-                            <h3>📊 Regra dos 4%</h3>
-                            <p>A regra dos 4% determina que você pode sacar 4% do seu portfólio anualmente sem comprometer o capital no longo prazo.</p>
-                            <ul>
-                                <li>Baseia-se no estudo de Trinity</li>
-                                <li>Período testado: 30+ anos de aposentadoria</li>
-                                <li>Taxa de sucesso histórica: >95%</li>
-                            </ul>
-                        </div>
-
-                        <div class="info-card">
-                            <h3>📈 Meta 25x</h3>
-                            <p>Para atingir a meta dos 4%, você precisa acumular 25 vezes seus gastos anuais (ou 300x seus gastos mensais).</p>
-                            <ul>
-                                <li>Exemplo: Gasta R$ 8.000/mês → Meta: R$ 2.400.000</li>
-                                <li>Calcule: Gastos anuais × 25</li>
-                                <li>Objetivo: Viver da rentabilidade sem tocar no principal</li>
-                            </ul>
-                        </div>
-
-                        <div class="info-card">
-                            <h3>⏰ Cronologia Típica</h3>
-                            <p>O tempo para atingir FIRE varia conforme a taxa de poupança e rentabilidade dos investimentos.</p>
-                            <ul>
-                                <li>Taxa 20%: ~30-40 anos para FIRE</li>
-                                <li>Taxa 30%: ~25-30 anos para FIRE</li>
-                                <li>Taxa 50%: ~15-20 anos para FIRE</li>
-                                <li>Taxa 70%: ~8-10 anos para FIRE</li>
-                            </ul>
-                        </div>
+            <!-- Quick Info Cards -->
+            <section class="quick-info-section">
+                <div class="quick-info-grid">
+                    <div class="quick-info-card">
+                        <div class="quick-info-icon">📊</div>
+                        <h3>Regra dos 4%</h3>
+                        <p>Retire 4% ao ano do seu portfólio mantendo o capital preservado por 30+ anos</p>
+                    </div>
+                    <div class="quick-info-card">
+                        <div class="quick-info-icon">🎯</div>
+                        <h3>Meta 25x</h3>
+                        <p>Acumule 25× seus gastos anuais para alcançar a independência financeira</p>
+                    </div>
+                    <div class="quick-info-card">
+                        <div class="quick-info-icon">💰</div>
+                        <h3>Renda Passiva</h3>
+                        <p>Viva dos rendimentos sem depender de salário ou trabalho ativo</p>
                     </div>
                 </div>
             </section>
 
-            <section class="strategy-section">
-                <h2>Estratégia de Investimento para FIRE</h2>
-                <div class="strategy-grid">
-                    <div class="strategy-card">
-                        <h3>Portfólio Diversificado</h3>
-                        <p>Monte uma carteira balanceada para suportar suas aposentadoria:</p>
-                        <ul>
-                            <li><strong>Ações (50-80%): </strong>Crescimento de longo prazo através de ações nacionais e internacionais</li>
-                            <li><strong>Renda Fixa (20-30%): </strong>Tesouro Direto, CDBs e outros ativos para estabilidade</li>
-                            <li><strong>FIIs (5-15%): </strong>Fundos imobiliários para diversificação</li>
-                            <li><strong>Reserva de Emergência: </strong>6-12 meses de gastos em liquidez imediata</li>
-                            <li><strong>Rebalanceamento: </strong>Ajuste trimestralmente ou semestralmente a alocação</li>
-                        </ul>
+            <!-- Tabbed Content Section -->
+            <section class="fire-content-section">
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-button active" data-tab="conceitos">📚 Conceitos</button>
+                        <button class="tab-button" data-tab="estrategia">💼 Estratégias</button>
+                        <button class="tab-button" data-tab="faq">❓ FAQ</button>
+                        <button class="tab-button" data-tab="avisos">⚠️ Avisos</button>
                     </div>
 
-                    <div class="strategy-card">
-                        <h3>Otimização Fiscal</h3>
-                        <p>Maximize sua eficiência tributária ao caminhar para FIRE:</p>
-                        <ul>
-                            <li><strong>Previdência Privada: </strong>PGBL/VGBL para diferimento tributário</li>
-                            <li><strong>Tesouro Direto: </strong>Títulos com tributação regressiva para longo prazo</li>
-                            <li><strong>Buy and Hold: </strong>Evite giro excessivo para minimizar tributos</li>
-                            <li><strong>FIIs: </strong>Aproveite a isenção de IR sobre dividendos</li>
-                            <li><strong>Planejamento Sucessório: </strong>Estruture para otimizar a transferência futura</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
+                    <div class="tabs-content">
+                        <!-- Tab 1: Conceitos -->
+                        <div class="tab-panel active" id="tab-conceitos">
+                            <h2>O que é FIRE Tradicional?</h2>
+                            <p class="intro-text">FIRE (Financial Independence, Retire Early) Tradicional é uma estratégia que visa alcançar a independência financeira através da regra dos 4%, onde você precisa acumular 25 vezes seus gastos anuais para poder viver dos rendimentos dos seus investimentos.</p>
 
-            <section class="faq-section">
-                <h2>Perguntas Frequentes sobre FIRE Tradicional</h2>
-                <div class="faq-list">
-                    <details class="faq-item">
-                        <summary>Como funciona exatamente a regra dos 4%?</summary>
-                        <p>A regra dos 4% sugere que você pode retirar 4% do valor total do seu portfólio no primeiro ano de aposentadoria, e ajustar esse valor pela inflação nos anos seguintes, mantendo uma alta probabilidade de não esgotar seus recursos por pelo menos 30 anos. Isso significa que você precisa acumular 25 vezes seus gastos anuais (1/0.04 = 25).</p>
-                    </details>
+                            <div class="concept-cards">
+                                <div class="concept-card">
+                                    <div class="concept-number">01</div>
+                                    <h3>Regra dos 4%</h3>
+                                    <p>A regra dos 4% determina que você pode sacar 4% do seu portfólio anualmente sem comprometer o capital no longo prazo.</p>
+                                    <ul>
+                                        <li>Baseia-se no estudo de Trinity</li>
+                                        <li>Período testado: 30+ anos de aposentadoria</li>
+                                        <li>Taxa de sucesso histórica: >95%</li>
+                                    </ul>
+                                </div>
 
-                    <details class="faq-item">
-                        <summary>Quanto dinheiro preciso para FIRE tradicional?</summary>
-                        <p>Você precisa acumular 25 vezes seus gastos anuais. Por exemplo, se você gasta R$ 8.000 por mês (R$ 96.000 por ano), sua meta FIRE seria R$ 2.400.000. Com esse montante investido rendendo em média 4% real ao ano, você conseguiria manter seu padrão de vida indefinidamente.</p>
-                    </details>
+                                <div class="concept-card">
+                                    <div class="concept-number">02</div>
+                                    <h3>Meta 25x</h3>
+                                    <p>Para atingir a meta dos 4%, você precisa acumular 25 vezes seus gastos anuais (ou 300x seus gastos mensais).</p>
+                                    <ul>
+                                        <li>Exemplo: Gasta R$ 8.000/mês → Meta: R$ 2.400.000</li>
+                                        <li>Calcule: Gastos anuais × 25</li>
+                                        <li>Objetivo: Viver da rentabilidade sem tocar no principal</li>
+                                    </ul>
+                                </div>
 
-                    <details class="faq-item">
-                        <summary>Quanto tempo leva para atingir FIRE?</summary>
-                        <p>O tempo depende principalmente da sua taxa de poupança e rentabilidade dos investimentos. Com uma taxa de poupança de 50% e rentabilidade real de 6% ao ano, você pode atingir FIRE em cerca de 15-17 anos. Aumentar a taxa de poupança tem um impacto maior do que aumentar a rentabilidade.</p>
-                    </details>
+                                <div class="concept-card">
+                                    <div class="concept-number">03</div>
+                                    <h3>Cronologia Típica</h3>
+                                    <p>O tempo para atingir FIRE varia conforme a taxa de poupança e rentabilidade dos investimentos.</p>
+                                    <ul>
+                                        <li>Taxa 20%: ~30-40 anos para FIRE</li>
+                                        <li>Taxa 30%: ~25-30 anos para FIRE</li>
+                                        <li>Taxa 50%: ~15-20 anos para FIRE</li>
+                                        <li>Taxa 70%: ~8-10 anos para FIRE</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
 
-                    <details class="faq-item">
-                        <summary>A regra dos 4% é segura no Brasil?</summary>
-                        <p>A regra dos 4% foi desenvolvida com base no mercado americano. No Brasil, devido à maior volatilidade e inflação histórica, alguns especialistas sugerem usar uma taxa mais conservadora de 3-3.5% (equivalente a acumular 28-33x seus gastos anuais). É importante considerar o cenário econômico brasileiro ao planejar.</p>
-                    </details>
+                        <!-- Tab 2: Estratégias -->
+                        <div class="tab-panel" id="tab-estrategia">
+                            <h2>Estratégias de Investimento para FIRE</h2>
+                            <p class="intro-text">Construa uma base sólida para sua independência financeira com estratégias comprovadas de investimento e otimização fiscal.</p>
 
-                    <details class="faq-item">
-                        <summary>Qual é melhor alocação de investimentos para FIRE?</summary>
-                        <p>Uma alocação comum é 60-70% em ações (para crescimento) e 30-40% em renda fixa (para estabilidade). Conforme você se aproxima da aposentadoria, é comum aumentar gradualmente a alocação em renda fixa. A diversificação geográfica e entre classes de ativos também é importante para reduzir riscos.</p>
-                    </details>
+                            <div class="strategy-grid">
+                                <div class="strategy-card">
+                                    <div class="strategy-icon">📊</div>
+                                    <h3>Portfólio Diversificado</h3>
+                                    <p>Monte uma carteira balanceada para suportar sua aposentadoria:</p>
+                                    <ul>
+                                        <li><strong>Ações (50-80%):</strong> Crescimento de longo prazo</li>
+                                        <li><strong>Renda Fixa (20-30%):</strong> Tesouro Direto, CDBs para estabilidade</li>
+                                        <li><strong>FIIs (5-15%):</strong> Fundos imobiliários para diversificação</li>
+                                        <li><strong>Reserva de Emergência:</strong> 6-12 meses de gastos</li>
+                                        <li><strong>Rebalanceamento:</strong> Ajuste trimestral/semestral</li>
+                                    </ul>
+                                </div>
 
-                    <details class="faq-item">
-                        <summary>Preciso viver de forma extremamente frugal para FIRE?</summary>
-                        <p>Não necessariamente. FIRE não é apenas sobre viver com o mínimo possível. Trata-se de escolher conscientemente onde gastar seu dinheiro, eliminando despesas que não agregam valor à sua vida, enquanto mantém gastos que realmente importam para você. A chave é encontrar um equilíbrio sustentável entre qualidade de vida e taxa de poupança.</p>
-                    </details>
-                </div>
-            </section>
+                                <div class="strategy-card">
+                                    <div class="strategy-icon">💎</div>
+                                    <h3>Otimização Fiscal</h3>
+                                    <p>Maximize sua eficiência tributária:</p>
+                                    <ul>
+                                        <li><strong>Previdência Privada:</strong> PGBL/VGBL para diferimento</li>
+                                        <li><strong>Tesouro Direto:</strong> Tributação regressiva longo prazo</li>
+                                        <li><strong>Buy and Hold:</strong> Minimize giro para reduzir tributos</li>
+                                        <li><strong>FIIs:</strong> Isenção de IR sobre dividendos</li>
+                                        <li><strong>Planejamento Sucessório:</strong> Otimize transferências</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
 
-            <section class="considerations-section">
-                <h2>⚠️ Considerações Importantes sobre FIRE Tradicional</h2>
-                <div class="considerations-content">
-                    <div class="consideration-item">
-                        <h3>Cenários Econômicos Variáveis</h3>
-                        <p><strong>Cuidado:</strong> A rentabilidade pode variar ao longo do tempo. Períodos prolongados de baixa rentabilidade ou alta inflação podem afetar sua estratégia de saque. Ajuste sua estratégia de acordo.</p>
-                    </div>
+                        <!-- Tab 3: FAQ -->
+                        <div class="tab-panel" id="tab-faq">
+                            <h2>Perguntas Frequentes</h2>
+                            <p class="intro-text">Tire suas dúvidas sobre FIRE Tradicional e entenda como aplicar essa estratégia na sua vida.</p>
 
-                    <div class="consideration-item">
-                        <h3>Flexibilidade Necessária</h3>
-                        <p>Seja flexível durante crises econômicas. Se uma crise atingir seus investimentos durante os primeiros anos de aposentadoria, considere reduzir temporariamente os saques ou retornar ao mercado de trabalho por algum tempo.</p>
-                    </div>
+                            <div class="faq-list">
+                                <details class="faq-item">
+                                    <summary>Como funciona exatamente a regra dos 4%?</summary>
+                                    <p>A regra dos 4% sugere que você pode retirar 4% do valor total do seu portfólio no primeiro ano de aposentadoria, e ajustar esse valor pela inflação nos anos seguintes, mantendo uma alta probabilidade de não esgotar seus recursos por pelo menos 30 anos. Isso significa que você precisa acumular 25 vezes seus gastos anuais (1/0.04 = 25).</p>
+                                </details>
 
-                    <div class="consideration-item">
-                        <h3>Planejamento de Saúde</h3>
-                        <p>Considere custos com saúde que tendem a aumentar com a idade. Inclua um buffer adicional ao seguir seu planejamento para FIRE ou mantenha uma reserva específica para saúde.</p>
-                    </div>
+                                <details class="faq-item">
+                                    <summary>Quanto dinheiro preciso para FIRE tradicional?</summary>
+                                    <p>Você precisa acumular 25 vezes seus gastos anuais. Por exemplo, se você gasta R$ 8.000 por mês (R$ 96.000 por ano), sua meta FIRE seria R$ 2.400.000. Com esse montante investido rendendo em média 4% real ao ano, você conseguiria manter seu padrão de vida indefinidamente.</p>
+                                </details>
 
-                    <div class="consideration-item">
-                        <h3>Propósito Pós-FIRE</h3>
-                        <p>FIRE não é apenas sobre deixar de trabalhar, mas sobre ter a liberdade de escolher como você quer viver. Tenha um plano para uma vida propositada após alcançar a independência financeira.</p>
+                                <details class="faq-item">
+                                    <summary>Quanto tempo leva para atingir FIRE?</summary>
+                                    <p>O tempo depende principalmente da sua taxa de poupança e rentabilidade dos investimentos. Com uma taxa de poupança de 50% e rentabilidade real de 6% ao ano, você pode atingir FIRE em cerca de 15-17 anos. Aumentar a taxa de poupança tem um impacto maior do que aumentar a rentabilidade.</p>
+                                </details>
+
+                                <details class="faq-item">
+                                    <summary>A regra dos 4% é segura no Brasil?</summary>
+                                    <p>A regra dos 4% foi desenvolvida com base no mercado americano. No Brasil, devido à maior volatilidade e inflação histórica, alguns especialistas sugerem usar uma taxa mais conservadora de 3-3.5% (equivalente a acumular 28-33x seus gastos anuais). É importante considerar o cenário econômico brasileiro ao planejar.</p>
+                                </details>
+
+                                <details class="faq-item">
+                                    <summary>Qual é melhor alocação de investimentos para FIRE?</summary>
+                                    <p>Uma alocação comum é 60-70% em ações (para crescimento) e 30-40% em renda fixa (para estabilidade). Conforme você se aproxima da aposentadoria, é comum aumentar gradualmente a alocação em renda fixa. A diversificação geográfica e entre classes de ativos também é importante para reduzir riscos.</p>
+                                </details>
+
+                                <details class="faq-item">
+                                    <summary>Preciso viver de forma extremamente frugal para FIRE?</summary>
+                                    <p>Não necessariamente. FIRE não é apenas sobre viver com o mínimo possível. Trata-se de escolher conscientemente onde gastar seu dinheiro, eliminando despesas que não agregam valor à sua vida, enquanto mantém gastos que realmente importam para você. A chave é encontrar um equilíbrio sustentável entre qualidade de vida e taxa de poupança.</p>
+                                </details>
+                            </div>
+                        </div>
+
+                        <!-- Tab 4: Avisos -->
+                        <div class="tab-panel" id="tab-avisos">
+                            <h2>⚠️ Considerações Importantes</h2>
+                            <p class="intro-text">Esteja ciente dos riscos e desafios ao seguir a estratégia FIRE Tradicional.</p>
+
+                            <div class="warning-grid">
+                                <div class="warning-card">
+                                    <div class="warning-icon">📉</div>
+                                    <h3>Cenários Econômicos Variáveis</h3>
+                                    <p><strong>Cuidado:</strong> A rentabilidade pode variar ao longo do tempo. Períodos prolongados de baixa rentabilidade ou alta inflação podem afetar sua estratégia de saque. Ajuste sua estratégia de acordo.</p>
+                                </div>
+
+                                <div class="warning-card">
+                                    <div class="warning-icon">🔄</div>
+                                    <h3>Flexibilidade Necessária</h3>
+                                    <p>Seja flexível durante crises econômicas. Se uma crise atingir seus investimentos durante os primeiros anos de aposentadoria, considere reduzir temporariamente os saques ou retornar ao mercado de trabalho por algum tempo.</p>
+                                </div>
+
+                                <div class="warning-card">
+                                    <div class="warning-icon">🏥</div>
+                                    <h3>Planejamento de Saúde</h3>
+                                    <p>Considere custos com saúde que tendem a aumentar com a idade. Inclua um buffer adicional ao seguir seu planejamento para FIRE ou mantenha uma reserva específica para saúde.</p>
+                                </div>
+
+                                <div class="warning-card">
+                                    <div class="warning-icon">🎯</div>
+                                    <h3>Propósito Pós-FIRE</h3>
+                                    <p>FIRE não é apenas sobre deixar de trabalhar, mas sobre ter a liberdade de escolher como você quer viver. Tenha um plano para uma vida propositada após alcançar a independência financeira.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
