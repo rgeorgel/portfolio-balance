@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PortfolioBalance.Data;
 using PortfolioBalance.DTOs;
+using PortfolioBalance.Models;
 
 namespace PortfolioBalance.Services;
 
@@ -139,55 +140,78 @@ public class PortfolioBalancingService
             // Calculate allocation within investments of this type based on weights
             if (amountToInvest > 0 && type.Investments.Any())
             {
-                var totalWeight = type.Investments.Sum(i => i.Weight);
-                decimal remainingInvestmentAmount = amountToInvest;
+                var weightedInvestments = type.Investments.Where(i => i.Weight > 0).ToList();
 
-                var investmentsList = type.Investments.ToList();
-
-                // Find the last investment with weight > 0 (to assign remaining amount for rounding)
-                var lastWeightedIndex = -1;
-                for (int i = investmentsList.Count - 1; i >= 0; i--)
+                if (weightedInvestments.Any())
                 {
-                    if (investmentsList[i].Weight > 0)
-                    {
-                        lastWeightedIndex = i;
-                        break;
-                    }
-                }
+                    var totalWeight = weightedInvestments.Sum(i => i.Weight);
+                    var totalTypeValue = type.Investments.Sum(i => i.CurrentValue);
+                    var targetTypeValue = totalTypeValue + amountToInvest;
 
-                for (int i = 0; i < investmentsList.Count; i++)
-                {
-                    var investment = investmentsList[i];
-                    decimal investmentAmount;
+                    // Calculate deficit for each investment (how far it is from its target proportion)
+                    var investmentDeficits = new List<(Investment investment, decimal deficit)>();
 
-                    if (investment.Weight == 0)
+                    foreach (var investment in weightedInvestments)
                     {
-                        // Investments with weight 0 are not counted in allocation
-                        investmentAmount = 0;
+                        var targetProportion = investment.Weight / totalWeight;
+                        var targetValue = targetTypeValue * targetProportion;
+                        var deficit = targetValue - investment.CurrentValue;
+
+                        investmentDeficits.Add((investment, deficit));
                     }
-                    else if (i == lastWeightedIndex)
-                    {
-                        // Last weighted investment gets remaining amount to avoid rounding issues
-                        investmentAmount = remainingInvestmentAmount;
-                    }
+
+                    // Sort by deficit descending (investments that need more money first)
+                    investmentDeficits = investmentDeficits.OrderByDescending(x => x.deficit).ToList();
+
+                    // Determine how many investments to select (2-4 based on amount available)
+                    // This ensures we don't split the money too much and get amounts below minimum
+                    int investmentsToSelect;
+                    if (amountToInvest >= 2000)
+                        investmentsToSelect = Math.Min(4, investmentDeficits.Count);
+                    else if (amountToInvest >= 1000)
+                        investmentsToSelect = Math.Min(3, investmentDeficits.Count);
+                    else if (amountToInvest >= 500)
+                        investmentsToSelect = Math.Min(2, investmentDeficits.Count);
                     else
-                    {
-                        var weightPercentage = totalWeight > 0
-                            ? investment.Weight / totalWeight
-                            : 0;
-                        investmentAmount = amountToInvest * weightPercentage;
-                        remainingInvestmentAmount -= investmentAmount;
-                    }
+                        investmentsToSelect = Math.Min(1, investmentDeficits.Count);
 
-                    typeAllocation.InvestmentAllocations.Add(new InvestmentAllocationDto
+                    // Select top N investments with highest deficits
+                    var selectedInvestments = investmentDeficits.Take(investmentsToSelect).ToList();
+
+                    // Calculate total deficit of selected investments (use max to avoid division by zero)
+                    var totalSelectedDeficit = Math.Max(selectedInvestments.Sum(x => x.deficit), 0.01m);
+
+                    // Distribute the amount among selected investments proportionally to their deficits
+                    decimal remainingInvestmentAmount = amountToInvest;
+
+                    for (int i = 0; i < selectedInvestments.Count; i++)
                     {
-                        InvestmentId = investment.Id,
-                        InvestmentName = investment.Name,
-                        Weight = investment.Weight,
-                        CurrentValue = investment.CurrentValue,
-                        AmountToInvest = investmentAmount,
-                        ValueAfterInvestment = investment.CurrentValue + investmentAmount
-                    });
+                        var investmentInfo = selectedInvestments[i];
+                        decimal investmentAmount;
+
+                        if (i == selectedInvestments.Count - 1)
+                        {
+                            // Last investment gets remaining amount to avoid rounding issues
+                            investmentAmount = remainingInvestmentAmount;
+                        }
+                        else
+                        {
+                            // Distribute proportionally to deficit
+                            var deficitProportion = investmentInfo.deficit / totalSelectedDeficit;
+                            investmentAmount = amountToInvest * deficitProportion;
+                            remainingInvestmentAmount -= investmentAmount;
+                        }
+
+                        typeAllocation.InvestmentAllocations.Add(new InvestmentAllocationDto
+                        {
+                            InvestmentId = investmentInfo.investment.Id,
+                            InvestmentName = investmentInfo.investment.Name,
+                            Weight = investmentInfo.investment.Weight,
+                            CurrentValue = investmentInfo.investment.CurrentValue,
+                            AmountToInvest = investmentAmount,
+                            ValueAfterInvestment = investmentInfo.investment.CurrentValue + investmentAmount
+                        });
+                    }
                 }
             }
 
