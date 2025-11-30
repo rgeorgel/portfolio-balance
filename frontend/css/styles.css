@@ -1404,3 +1404,235 @@ table tr:hover {
         font-size: 20px;
     }
 }
+
+/* Allocations Page - New Design with Sliders and Pie Chart */
+.allocations-container {
+    display: grid;
+    grid-template-columns: 500px 1fr;
+    gap: 40px;
+    margin-bottom: 30px;
+    padding: 30px;
+    background-color: #1a1a1a;
+    border-radius: 12px;
+}
+
+.chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.chart-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#pieChart {
+    display: block;
+}
+
+.chart-total {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+}
+
+.total-label {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.total-value {
+    font-size: 36px;
+    font-weight: bold;
+}
+
+#totalAllocation {
+    color: inherit;
+}
+
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    padding: 0 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-size: 14px;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legend-label {
+    white-space: nowrap;
+}
+
+.sliders-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 10px 0;
+}
+
+.allocation-slider-group {
+    margin-bottom: 25px;
+}
+
+.allocation-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: white;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.color-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.allocation-label label {
+    flex: 1;
+    margin: 0;
+    color: white;
+}
+
+.allocation-value {
+    font-weight: bold;
+    min-width: 50px;
+    text-align: right;
+}
+
+.slider-container {
+    width: 100%;
+}
+
+.allocation-slider {
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: linear-gradient(to right,
+        var(--slider-color) 0%,
+        var(--slider-color) var(--value, 0%),
+        #444 var(--value, 0%),
+        #444 100%);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+.allocation-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--slider-color, #3498db);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+}
+
+.allocation-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+.allocation-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--slider-color, #3498db);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+}
+
+.allocation-slider::-moz-range-thumb:hover {
+    transform: scale(1.1);
+}
+
+.allocation-slider::-moz-range-track {
+    background: #444;
+    height: 8px;
+    border-radius: 5px;
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    color: #999;
+    font-size: 12px;
+}
+
+.form-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding: 20px 30px;
+    background-color: #1a1a1a;
+    border-radius: 12px;
+}
+
+.btn-secondary {
+    background-color: #555;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #666;
+}
+
+/* Responsive design for allocations page */
+@media (max-width: 1024px) {
+    .allocations-container {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-container {
+        order: 2;
+    }
+
+    .sliders-container {
+        order: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .allocations-container {
+        padding: 20px;
+    }
+
+    #pieChart {
+        width: 300px !important;
+        height: 300px !important;
+    }
+
+    .chart-legend {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

@@ -39,19 +39,36 @@
 
         <main>
             <section class="allocations-section">
-                <h2>Configurar Alocações</h2>
-                <p class="description">Defina a porcentagem de alocação desejada para cada tipo de investimento. O total deve somar 100%.</p>
+                <h2>Metas</h2>
+                <p class="description">Edite os itens abaixo para ajustar suas metas.</p>
 
                 <form id="allocationsForm">
-                    <div id="allocationInputs" class="allocation-inputs">
-                        <!-- Allocation inputs will be inserted here -->
+                    <div class="allocations-container">
+                        <!-- Left side: Pie Chart -->
+                        <div class="chart-container">
+                            <div class="chart-wrapper">
+                                <canvas id="pieChart" width="350" height="350"></canvas>
+                                <div class="chart-total">
+                                    <div class="total-label">Total:</div>
+                                    <div class="total-value"><span id="totalAllocation">0</span>%</div>
+                                </div>
+                            </div>
+                            <div class="chart-legend" id="chartLegend">
+                                <!-- Legend will be inserted here -->
+                            </div>
+                        </div>
+
+                        <!-- Right side: Sliders -->
+                        <div class="sliders-container">
+                            <div id="allocationInputs" class="allocation-inputs">
+                                <!-- Allocation sliders will be inserted here -->
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-footer">
-                        <div class="total-allocation">
-                            <strong>Total: <span id="totalAllocation">0</span>%</strong>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Salvar Alocações</button>
+                        <button type="button" onclick="resetAllocations()" class="btn btn-secondary">Resetar valores</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
                     </div>
                 </form>
 
