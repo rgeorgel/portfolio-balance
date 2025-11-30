@@ -1416,24 +1416,28 @@ table tr:hover {
     border-radius: 12px;
 }
 
-.chart-container {
+.allocations-section .chart-container {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    background-color: transparent;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
 }
 
-.chart-wrapper {
+.allocations-section .chart-wrapper {
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-#pieChart {
+.allocations-section #pieChart {
     display: block;
 }
 
-.chart-total {
+.allocations-section .chart-total {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -1442,22 +1446,22 @@ table tr:hover {
     color: white;
 }
 
-.total-label {
+.allocations-section .total-label {
     font-size: 16px;
     font-weight: 500;
     margin-bottom: 5px;
 }
 
-.total-value {
+.allocations-section .total-value {
     font-size: 36px;
     font-weight: bold;
 }
 
-#totalAllocation {
+.allocations-section #totalAllocation {
     color: inherit;
 }
 
-.chart-legend {
+.allocations-section .chart-legend {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
@@ -1465,7 +1469,7 @@ table tr:hover {
     padding: 0 20px;
 }
 
-.legend-item {
+.allocations-section .legend-item {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1473,29 +1477,29 @@ table tr:hover {
     font-size: 14px;
 }
 
-.legend-color {
+.allocations-section .legend-color {
     width: 16px;
     height: 16px;
     border-radius: 50%;
     display: inline-block;
 }
 
-.legend-label {
+.allocations-section .legend-label {
     white-space: nowrap;
 }
 
-.sliders-container {
+.allocations-section .sliders-container {
     display: flex;
     flex-direction: column;
     gap: 20px;
     padding: 10px 0;
 }
 
-.allocation-slider-group {
+.allocations-section .allocation-slider-group {
     margin-bottom: 25px;
 }
 
-.allocation-label {
+.allocations-section .allocation-label {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -1505,30 +1509,30 @@ table tr:hover {
     font-size: 16px;
 }
 
-.color-indicator {
+.allocations-section .color-indicator {
     width: 12px;
     height: 12px;
     border-radius: 50%;
     display: inline-block;
 }
 
-.allocation-label label {
+.allocations-section .allocation-label label {
     flex: 1;
     margin: 0;
     color: white;
 }
 
-.allocation-value {
+.allocations-section .allocation-value {
     font-weight: bold;
     min-width: 50px;
     text-align: right;
 }
 
-.slider-container {
+.allocations-section .slider-container {
     width: 100%;
 }
 
-.allocation-slider {
+.allocations-section .allocation-slider {
     width: 100%;
     height: 8px;
     border-radius: 5px;
@@ -1543,7 +1547,7 @@ table tr:hover {
     cursor: pointer;
 }
 
-.allocation-slider::-webkit-slider-thumb {
+.allocations-section .allocation-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 20px;
@@ -1555,11 +1559,11 @@ table tr:hover {
     transition: transform 0.2s;
 }
 
-.allocation-slider::-webkit-slider-thumb:hover {
+.allocations-section .allocation-slider::-webkit-slider-thumb:hover {
     transform: scale(1.1);
 }
 
-.allocation-slider::-moz-range-thumb {
+.allocations-section .allocation-slider::-moz-range-thumb {
     width: 20px;
     height: 20px;
     border-radius: 50%;
@@ -1570,17 +1574,17 @@ table tr:hover {
     transition: transform 0.2s;
 }
 
-.allocation-slider::-moz-range-thumb:hover {
+.allocations-section .allocation-slider::-moz-range-thumb:hover {
     transform: scale(1.1);
 }
 
-.allocation-slider::-moz-range-track {
+.allocations-section .allocation-slider::-moz-range-track {
     background: #444;
     height: 8px;
     border-radius: 5px;
 }
 
-.slider-labels {
+.allocations-section .slider-labels {
     display: flex;
     justify-content: space-between;
     margin-top: 5px;
@@ -1588,7 +1592,7 @@ table tr:hover {
     font-size: 12px;
 }
 
-.form-footer {
+.allocations-section .form-footer {
     display: flex;
     justify-content: flex-end;
     gap: 15px;
@@ -1597,41 +1601,41 @@ table tr:hover {
     border-radius: 12px;
 }
 
-.btn-secondary {
+.allocations-section .btn-secondary {
     background-color: #555;
     color: white;
 }
 
-.btn-secondary:hover {
+.allocations-section .btn-secondary:hover {
     background-color: #666;
 }
 
 /* Responsive design for allocations page */
 @media (max-width: 1024px) {
-    .allocations-container {
+    .allocations-section .allocations-container {
         grid-template-columns: 1fr;
     }
 
-    .chart-container {
+    .allocations-section .chart-container {
         order: 2;
     }
 
-    .sliders-container {
+    .allocations-section .sliders-container {
         order: 1;
     }
 }
 
 @media (max-width: 768px) {
-    .allocations-container {
+    .allocations-section .allocations-container {
         padding: 20px;
     }
 
-    #pieChart {
+    .allocations-section #pieChart {
         width: 300px !important;
         height: 300px !important;
     }
 
-    .chart-legend {
+    .allocations-section .chart-legend {
         flex-direction: column;
         align-items: flex-start;
     }
