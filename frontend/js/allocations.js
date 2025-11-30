@@ -19,7 +19,10 @@ const INVESTMENT_COLORS = {
     'REITs': '#BB8FCE',
     'Criptomoedas': '#85C1E2',
     'Renda Fixa': '#E59866',
-    'Renda Fixa Internacional': '#A569BD'
+    'Renda Fixa Internacional': '#A569BD',
+    'Fundos de Investimentos': '#52BE80',
+    'Fundos de Aposentadoria': '#EC7063',
+    'Caixa / Reserva Emergencia': '#95A5A6'
 };
 
 async function loadInvestmentTypes() {
