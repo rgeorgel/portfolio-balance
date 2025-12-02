@@ -565,20 +565,58 @@ table tr:hover {
 .investment-item {
     display: flex;
     justify-content: space-between;
-    padding: 8px;
+    align-items: center;
+    padding: 12px;
     background-color: #fff;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+}
+
+.investment-item .investment-info {
+    flex: 1;
 }
 
 .investment-item .name {
     font-weight: bold;
 }
 
+.investment-item .investment-amounts {
+    display: flex;
+    gap: 20px;
+    margin-top: 5px;
+}
+
 .investment-item .amount {
     color: #27ae60;
     font-weight: bold;
+    font-size: 14px;
+}
+
+.investment-item .quantity {
+    color: #3498db;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.investment-item .investment-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-deposit {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.btn-deposit:hover {
+    background-color: #229954;
 }
 
 .investments-list {

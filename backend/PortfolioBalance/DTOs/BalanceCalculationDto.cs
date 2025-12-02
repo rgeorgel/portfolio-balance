@@ -34,4 +34,6 @@ public class InvestmentAllocationDto
     public decimal CurrentValue { get; set; }
     public decimal AmountToInvest { get; set; }
     public decimal ValueAfterInvestment { get; set; }
+    public decimal? UnitValue { get; set; }
+    public decimal? Quantity { get; set; }
 }

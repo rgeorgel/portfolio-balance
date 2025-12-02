@@ -98,14 +98,23 @@ function displayResults(result) {
             `;
 
             validInvestmentAllocations.forEach(inv => {
+                const canCalculateQuantity = inv.unitValue && inv.unitValue > 0;
+                const quantityToBuy = canCalculateQuantity ? (inv.amountToInvest / inv.unitValue).toFixed(4) : '-';
+
                 allocationHtml += `
                     <div class="investment-item">
-                        <div>
-                            <span class="name">${inv.investmentName}</span>
-                            <span style="color: #666; font-size: 12px;"> (Peso: ${inv.weight})</span>
+                        <div class="investment-info">
+                            <div>
+                                <span class="name">${inv.investmentName}</span>
+                                <span style="color: #666; font-size: 12px;"> (Peso: ${inv.weight})</span>
+                            </div>
+                            <div class="investment-amounts">
+                                <span class="amount">Valor: +${formatCurrency(inv.amountToInvest)}</span>
+                                <span class="quantity">Quantidade: ${quantityToBuy}</span>
+                            </div>
                         </div>
-                        <div>
-                            <span class="amount">+${formatCurrency(inv.amountToInvest)}</span>
+                        <div class="investment-actions">
+                            <button class="btn btn-deposit" onclick="openDepositModal(${inv.investmentId}, '${inv.investmentName}', ${inv.amountToInvest}, ${inv.unitValue || 0}, ${quantityToBuy === '-' ? 0 : quantityToBuy})">Aportar</button>
                         </div>
                     </div>
                 `;
@@ -132,7 +141,124 @@ function displayResults(result) {
     document.getElementById('calculationResults').style.display = 'block';
 }
 
+// Deposit Modal functionality
+let currentDepositInvestment = null;
+
+function openDepositModal(investmentId, investmentName, suggestedAmount, unitValue, suggestedQuantity) {
+    currentDepositInvestment = {
+        id: investmentId,
+        name: investmentName
+    };
+
+    const modal = document.getElementById('depositModal');
+    document.getElementById('depositInvestmentName').textContent = investmentName;
+    document.getElementById('depositAmount').value = suggestedAmount.toFixed(2);
+    document.getElementById('depositUnitValue').value = unitValue > 0 ? unitValue.toFixed(2) : '';
+    document.getElementById('depositQuantity').value = suggestedQuantity > 0 ? suggestedQuantity : '';
+
+    modal.style.display = 'block';
+}
+
+function closeDepositModal() {
+    const modal = document.getElementById('depositModal');
+    modal.style.display = 'none';
+    currentDepositInvestment = null;
+}
+
+function calculateDepositAmount() {
+    const unitValue = parseFloat(document.getElementById('depositUnitValue').value) || 0;
+    const quantity = parseFloat(document.getElementById('depositQuantity').value) || 0;
+    const amountField = document.getElementById('depositAmount');
+
+    if (unitValue > 0 && quantity > 0) {
+        const total = unitValue * quantity;
+        amountField.value = total.toFixed(2);
+    }
+}
+
+async function saveDeposit(event) {
+    event.preventDefault();
+
+    if (!currentDepositInvestment) {
+        alert('Erro: investimento não selecionado');
+        return;
+    }
+
+    const amount = parseFloat(document.getElementById('depositAmount').value);
+    const unitValue = parseFloat(document.getElementById('depositUnitValue').value) || null;
+    const quantity = parseFloat(document.getElementById('depositQuantity').value) || null;
+
+    if (amount <= 0) {
+        alert('Por favor, informe um valor válido');
+        return;
+    }
+
+    const data = {
+        investmentId: currentDepositInvestment.id,
+        type: 1, // Aporte/Compra
+        amount: amount,
+        unitValue: unitValue,
+        quantity: quantity,
+        transactionDate: new Date().toISOString(),
+        notes: `Aporte via calculadora de distribuição`
+    };
+
+    try {
+        const response = await fetchWithAuth(`${API_BASE_URL}/investmenttransactions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response && response.ok) {
+            alert('Aporte registrado com sucesso!');
+            closeDepositModal();
+            // Recalcular distribuição
+            document.getElementById('calculatorForm').dispatchEvent(new Event('submit'));
+        } else {
+            alert('Erro ao registrar aporte');
+        }
+    } catch (error) {
+        console.error('Error saving deposit:', error);
+        alert('Erro ao registrar aporte');
+    }
+}
+
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('calculatorForm').addEventListener('submit', handleCalculation);
+
+    // Deposit modal event listeners
+    const depositForm = document.getElementById('depositForm');
+    if (depositForm) {
+        depositForm.addEventListener('submit', saveDeposit);
+    }
+
+    const depositUnitValue = document.getElementById('depositUnitValue');
+    const depositQuantity = document.getElementById('depositQuantity');
+    if (depositUnitValue && depositQuantity) {
+        depositUnitValue.addEventListener('input', calculateDepositAmount);
+        depositQuantity.addEventListener('input', calculateDepositAmount);
+    }
+
+    const depositCancelBtn = document.getElementById('depositCancelBtn');
+    if (depositCancelBtn) {
+        depositCancelBtn.addEventListener('click', closeDepositModal);
+    }
+
+    // Close modal on X click
+    const closeBtn = document.querySelector('#depositModal .close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeDepositModal);
+    }
+
+    // Close modal on outside click
+    window.addEventListener('click', (event) => {
+        const modal = document.getElementById('depositModal');
+        if (modal && event.target === modal) {
+            closeDepositModal();
+        }
+    });
 });
