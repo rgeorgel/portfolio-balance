@@ -209,7 +209,9 @@ public class PortfolioBalancingService
                             Weight = investmentInfo.investment.Weight,
                             CurrentValue = investmentInfo.investment.CurrentValue,
                             AmountToInvest = investmentAmount,
-                            ValueAfterInvestment = investmentInfo.investment.CurrentValue + investmentAmount
+                            ValueAfterInvestment = investmentInfo.investment.CurrentValue + investmentAmount,
+                            UnitValue = investmentInfo.investment.UnitValue,
+                            Quantity = investmentInfo.investment.Quantity
                         });
                     }
                 }
