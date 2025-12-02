@@ -99,7 +99,17 @@ function displayResults(result) {
 
             validInvestmentAllocations.forEach(inv => {
                 const canCalculateQuantity = inv.unitValue && inv.unitValue > 0;
-                const quantityToBuy = canCalculateQuantity ? (inv.amountToInvest / inv.unitValue).toFixed(4) : '-';
+                // ID 1 = Ações Nacionais, ID 2 = Fundos Imobiliários (FIIs)
+                // Para ações nacionais e FIIs, arredondar para baixo (número inteiro)
+                let quantityToBuy = '-';
+                if (canCalculateQuantity) {
+                    const calculatedQty = inv.amountToInvest / inv.unitValue;
+                    if (allocation.investmentTypeId === 1 || allocation.investmentTypeId === 2) {
+                        quantityToBuy = Math.floor(calculatedQty).toString();
+                    } else {
+                        quantityToBuy = calculatedQty.toFixed(4);
+                    }
+                }
 
                 allocationHtml += `
                     <div class="investment-item">
@@ -114,7 +124,7 @@ function displayResults(result) {
                             </div>
                         </div>
                         <div class="investment-actions">
-                            <button class="btn btn-deposit" onclick="openDepositModal(${inv.investmentId}, '${inv.investmentName}', ${inv.amountToInvest}, ${inv.unitValue || 0}, ${quantityToBuy === '-' ? 0 : quantityToBuy})">Aportar</button>
+                            <button class="btn btn-deposit" onclick="openDepositModal(${inv.investmentId}, '${inv.investmentName}', ${inv.amountToInvest}, ${inv.unitValue || 0}, ${quantityToBuy === '-' ? 0 : quantityToBuy}, ${allocation.investmentTypeId})">Aportar</button>
                         </div>
                     </div>
                 `;
@@ -144,10 +154,11 @@ function displayResults(result) {
 // Deposit Modal functionality
 let currentDepositInvestment = null;
 
-function openDepositModal(investmentId, investmentName, suggestedAmount, unitValue, suggestedQuantity) {
+function openDepositModal(investmentId, investmentName, suggestedAmount, unitValue, suggestedQuantity, investmentTypeId) {
     currentDepositInvestment = {
         id: investmentId,
-        name: investmentName
+        name: investmentName,
+        typeId: investmentTypeId
     };
 
     const modal = document.getElementById('depositModal');
@@ -167,8 +178,18 @@ function closeDepositModal() {
 
 function calculateDepositAmount() {
     const unitValue = parseFloat(document.getElementById('depositUnitValue').value) || 0;
-    const quantity = parseFloat(document.getElementById('depositQuantity').value) || 0;
+    let quantity = parseFloat(document.getElementById('depositQuantity').value) || 0;
     const amountField = document.getElementById('depositAmount');
+    const quantityField = document.getElementById('depositQuantity');
+
+    // ID 1 = Ações Nacionais, ID 2 = Fundos Imobiliários (FIIs)
+    // Para ações nacionais e FIIs, arredondar para baixo (número inteiro)
+    if (currentDepositInvestment && (currentDepositInvestment.typeId === 1 || currentDepositInvestment.typeId === 2)) {
+        if (quantity > 0) {
+            quantity = Math.floor(quantity);
+            quantityField.value = quantity;
+        }
+    }
 
     if (unitValue > 0 && quantity > 0) {
         const total = unitValue * quantity;

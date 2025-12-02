@@ -183,6 +183,17 @@ function renderPortfolioPieChart() {
                             return `${label}: ${value} (${percentage}%)`;
                         }
                     }
+                },
+                datalabels: {
+                    color: '#fff',
+                    font: {
+                        weight: 'bold',
+                        size: 14
+                    },
+                    formatter: function(value, context) {
+                        const percentage = percentages[context.dataIndex];
+                        return percentage + '%';
+                    }
                 }
             }
         }
@@ -261,6 +272,9 @@ function renderAllocationComparisonChart() {
                             return `${context.dataset.label}: ${context.parsed.y.toFixed(2)}%`;
                         }
                     }
+                },
+                datalabels: {
+                    display: false
                 }
             }
         }
