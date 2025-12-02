@@ -4,6 +4,9 @@ let investments = [];
 let portfolioPieChart = null;
 let allocationComparisonChart = null;
 
+// Register the datalabels plugin globally
+Chart.register(ChartDataLabels);
+
 async function loadDashboard() {
     try {
         // Load investment types
@@ -191,9 +194,15 @@ function renderPortfolioPieChart() {
                         size: 14
                     },
                     formatter: function(value, context) {
-                        const percentage = percentages[context.dataIndex];
-                        return percentage + '%';
-                    }
+                        const percentage = parseFloat(percentages[context.dataIndex]);
+                        // Only show percentage if it's greater than 3% to avoid clutter
+                        if (percentage > 3) {
+                            return percentage.toFixed(1) + '%';
+                        }
+                        return '';
+                    },
+                    anchor: 'center',
+                    align: 'center'
                 }
             }
         }
