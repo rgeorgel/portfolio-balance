@@ -11,7 +11,7 @@ if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const username = document.getElementById('username').value;
+        const usernameOrEmail = document.getElementById('usernameOrEmail').value;
         const password = document.getElementById('password').value;
         const errorMessage = document.getElementById('errorMessage');
 
@@ -21,12 +21,12 @@ if (loginForm) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ usernameOrEmail, password })
             });
 
             if (!response.ok) {
                 const error = await response.json();
-                errorMessage.textContent = error.message || 'Usuário ou senha inválidos';
+                errorMessage.textContent = error.message || 'Usuário/email ou senha inválidos';
                 errorMessage.style.display = 'block';
                 return;
             }

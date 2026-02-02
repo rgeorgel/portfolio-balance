@@ -73,12 +73,13 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponseDto>> Login(LoginDto loginDto)
     {
-        // Find user by username
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == loginDto.Username);
+        // Find user by username or email
+        var user = await _context.Users.FirstOrDefaultAsync(u =>
+            u.Username == loginDto.UsernameOrEmail || u.Email == loginDto.UsernameOrEmail);
 
         if (user == null || !_authService.VerifyPassword(loginDto.Password, user.PasswordHash))
         {
-            return Unauthorized(new { message = "Invalid username or password" });
+            return Unauthorized(new { message = "Invalid username/email or password" });
         }
 
         // Generate JWT token
