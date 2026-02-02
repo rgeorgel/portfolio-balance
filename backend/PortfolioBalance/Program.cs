@@ -19,6 +19,7 @@ builder.Services.AddDbContext<PortfolioDbContext>(options =>
 // Add Services
 builder.Services.AddScoped<PortfolioBalancingService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<AdvisorAuthService>();
 builder.Services.AddScoped<ProfitabilityService>();
 
 // Add HttpClient for StockService

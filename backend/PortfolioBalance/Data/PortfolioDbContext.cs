@@ -15,6 +15,8 @@ public class PortfolioDbContext : DbContext
     public DbSet<UserInvestmentTypeAllocation> UserInvestmentTypeAllocations { get; set; }
     public DbSet<InvestmentHistory> InvestmentHistories { get; set; }
     public DbSet<InvestmentTransaction> InvestmentTransactions { get; set; }
+    public DbSet<Advisor> Advisors { get; set; }
+    public DbSet<AdvisorClient> AdvisorClients { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -115,5 +117,34 @@ public class PortfolioDbContext : DbContext
             new InvestmentType { Id = 4, Name = "Renda Fixa" },
             new InvestmentType { Id = 5, Name = "Ações Internacionais" }
         );
+
+        modelBuilder.Entity<Advisor>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.PasswordHash).IsRequired();
+            entity.Property(e => e.FullName).HasMaxLength(200);
+            entity.HasIndex(e => e.Username).IsUnique();
+            entity.HasIndex(e => e.Email).IsUnique();
+        });
+
+        modelBuilder.Entity<AdvisorClient>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.HasOne(e => e.Advisor)
+                .WithMany(a => a.Clients)
+                .HasForeignKey(e => e.AdvisorId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Unique constraint to prevent duplicate advisor-client relationships
+            entity.HasIndex(e => new { e.AdvisorId, e.UserId }).IsUnique();
+        });
     }
 }

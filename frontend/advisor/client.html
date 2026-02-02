@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Assessor - Cliente</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        header h1 {
+            font-size: 1.5em;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .btn-back {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        .btn-back:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .btn-logout {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .client-header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin: 20px 0;
+        }
+        .client-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .client-name {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        .client-email {
+            color: #666;
+            font-size: 1em;
+            margin-top: 5px;
+        }
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .card h3 {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .card .value {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .chart-card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+        .investments-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin: 20px 0;
+        }
+        .investments-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        .investments-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .investments-table th,
+        .investments-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .investments-table th {
+            background-color: #f5f7fa;
+            font-weight: 600;
+            color: #333;
+        }
+        .investments-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.2s;
+        }
+        .tab:hover {
+            border-color: #1a1a2e;
+        }
+        .tab.active {
+            background: #1a1a2e;
+            color: white;
+            border-color: #1a1a2e;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .allocation-bar {
+            margin: 15px 0;
+        }
+        .allocation-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .allocation-label .name {
+            font-weight: 500;
+            color: #333;
+        }
+        .allocation-label .values {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .bar-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        .bar-target {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: #333;
+        }
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            .investments-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Portal do Assessor</h1>
+        <div class="header-actions">
+            <a href="index.html" class="btn-back">Voltar</a>
+            <button class="btn-logout" onclick="advisorLogout()">Sair</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="client-header">
+            <div class="client-info">
+                <div>
+                    <div class="client-name" id="clientName">Carregando...</div>
+                    <div class="client-email" id="clientEmail"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-cards">
+            <div class="card">
+                <h3>Valor Total</h3>
+                <p class="value" id="totalValue">R$ 0,00</p>
+            </div>
+            <div class="card">
+                <h3>Total de Investimentos</h3>
+                <p class="value" id="totalInvestments">0</p>
+            </div>
+            <div class="card">
+                <h3>Tipos de Investimento</h3>
+                <p class="value" id="totalTypes">0</p>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="overview">Visao Geral</div>
+            <div class="tab" data-tab="investments">Investimentos</div>
+            <div class="tab" data-tab="allocations">Alocacoes</div>
+            <div class="tab" data-tab="transactions">Transacoes</div>
+        </div>
+
+        <div id="overview" class="tab-content active">
+            <div class="charts-section">
+                <div class="chart-card">
+                    <h3>Distribuicao por Tipo</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="portfolioPieChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Alocacao: Alvo vs Atual</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="allocationComparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="investments" class="tab-content">
+            <div class="investments-section">
+                <h3>Lista de Investimentos</h3>
+                <table class="investments-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Quantidade</th>
+                            <th>Valor Unitario</th>
+                            <th>Valor Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="investmentsTableBody">
+                        <tr><td colspan="5" class="loading">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="allocations" class="tab-content">
+            <div class="investments-section">
+                <h3>Alocacoes por Tipo</h3>
+                <div id="allocationsContainer">
+                    <div class="loading">Carregando...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="transactions" class="tab-content">
+            <div class="investments-section">
+                <h3>Transacoes Recentes</h3>
+                <table class="investments-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Investimento</th>
+                            <th>Tipo</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTableBody">
+                        <tr><td colspan="4" class="loading">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/advisor-config.js"></script>
+    <script src="js/advisor-client.js"></script>
+</body>
+</html>
