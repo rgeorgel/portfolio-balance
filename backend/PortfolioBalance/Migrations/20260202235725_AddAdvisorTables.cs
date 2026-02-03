@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -59,6 +59,17 @@ namespace PortfolioBalance.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AdvisorClients_AdvisorId_UserId",
+                table: "AdvisorClients",
+                columns: new[] { "AdvisorId", "UserId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdvisorClients_UserId",
+                table: "AdvisorClients",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Advisors_Email",
                 table: "Advisors",
                 column: "Email",
@@ -69,17 +80,6 @@ namespace PortfolioBalance.Migrations
                 table: "Advisors",
                 column: "Username",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AdvisorClients_AdvisorId_UserId",
-                table: "AdvisorClients",
-                columns: new[] { "AdvisorId", "UserId" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AdvisorClients_UserId",
-                table: "AdvisorClients",
-                column: "UserId");
         }
 
         /// <inheritdoc />

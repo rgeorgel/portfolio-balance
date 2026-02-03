@@ -22,6 +22,79 @@ namespace PortfolioBalance.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("PortfolioBalance.Models.Advisor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("FullName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Advisors");
+                });
+
+            modelBuilder.Entity("PortfolioBalance.Models.AdvisorClient", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AdvisorId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("AssignedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("AdvisorId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("AdvisorClients");
+                });
+
             modelBuilder.Entity("PortfolioBalance.Models.Investment", b =>
                 {
                     b.Property<int>("Id")
@@ -260,6 +333,25 @@ namespace PortfolioBalance.Migrations
                     b.ToTable("UserInvestmentTypeAllocations");
                 });
 
+            modelBuilder.Entity("PortfolioBalance.Models.AdvisorClient", b =>
+                {
+                    b.HasOne("PortfolioBalance.Models.Advisor", "Advisor")
+                        .WithMany("Clients")
+                        .HasForeignKey("AdvisorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PortfolioBalance.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Advisor");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("PortfolioBalance.Models.Investment", b =>
                 {
                     b.HasOne("PortfolioBalance.Models.InvestmentType", "InvestmentType")
@@ -318,6 +410,11 @@ namespace PortfolioBalance.Migrations
                     b.Navigation("InvestmentType");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PortfolioBalance.Models.Advisor", b =>
+                {
+                    b.Navigation("Clients");
                 });
 
             modelBuilder.Entity("PortfolioBalance.Models.Investment", b =>

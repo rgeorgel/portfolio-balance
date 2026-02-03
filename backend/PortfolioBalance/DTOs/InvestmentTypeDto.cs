@@ -6,6 +6,8 @@ public class InvestmentTypeDto
     public string Name { get; set; } = string.Empty;
     public decimal AllocationPercentage { get; set; }
     public decimal CurrentTotalValue { get; set; }
+    public decimal CurrentValue { get; set; }
+    public decimal CurrentPercentage { get; set; }
 }
 
 public class UpdateAllocationDto
