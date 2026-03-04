@@ -15,11 +15,13 @@ public class AdvisorController : ControllerBase
 {
     private readonly PortfolioDbContext _context;
     private readonly AdvisorAuthService _advisorAuthService;
+    private readonly ProfitabilityService _profitabilityService;
 
-    public AdvisorController(PortfolioDbContext context, AdvisorAuthService advisorAuthService)
+    public AdvisorController(PortfolioDbContext context, AdvisorAuthService advisorAuthService, ProfitabilityService profitabilityService)
     {
         _context = context;
         _advisorAuthService = advisorAuthService;
+        _profitabilityService = profitabilityService;
     }
 
     private async Task<int?> GetAdvisorIdAsync()
@@ -407,6 +409,68 @@ public class AdvisorController : ControllerBase
             .ToListAsync();
 
         return Ok(history);
+    }
+
+    [HttpGet("clients/{userId}/profitability")]
+    public async Task<ActionResult<PortfolioProfitabilityDto>> GetClientProfitability(
+        int userId,
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null)
+    {
+        var advisorId = await GetAdvisorIdAsync();
+        if (advisorId == null)
+        {
+            return Unauthorized(new { message = "Only advisors can access this endpoint" });
+        }
+
+        if (!await IsClientOfAdvisor(advisorId.Value, userId))
+        {
+            return Forbidden();
+        }
+
+        var profitability = await _profitabilityService.GetPortfolioProfitabilityAsync(userId, startDate, endDate);
+        return Ok(profitability);
+    }
+
+    [HttpGet("clients/{userId}/profitability/by-type")]
+    public async Task<ActionResult<List<InvestmentTypeProfitabilityDto>>> GetClientProfitabilityByType(int userId)
+    {
+        var advisorId = await GetAdvisorIdAsync();
+        if (advisorId == null)
+        {
+            return Unauthorized(new { message = "Only advisors can access this endpoint" });
+        }
+
+        if (!await IsClientOfAdvisor(advisorId.Value, userId))
+        {
+            return Forbidden();
+        }
+
+        var profitability = await _profitabilityService.GetProfitabilityByTypeAsync(userId);
+        return Ok(profitability);
+    }
+
+    [HttpGet("clients/{userId}/profitability/top-performers")]
+    public async Task<ActionResult<TopPerformersDto>> GetClientTopPerformers(int userId, [FromQuery] int limit = 5)
+    {
+        var advisorId = await GetAdvisorIdAsync();
+        if (advisorId == null)
+        {
+            return Unauthorized(new { message = "Only advisors can access this endpoint" });
+        }
+
+        if (!await IsClientOfAdvisor(advisorId.Value, userId))
+        {
+            return Forbidden();
+        }
+
+        if (limit < 1 || limit > 20)
+        {
+            return BadRequest(new { message = "Limit must be between 1 and 20" });
+        }
+
+        var performers = await _profitabilityService.GetTopPerformersAsync(userId, limit);
+        return Ok(performers);
     }
 
     private ActionResult Forbidden()

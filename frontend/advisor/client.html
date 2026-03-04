@@ -241,6 +241,109 @@
             width: 3px;
             background: #333;
         }
+        .return-percentage {
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+        .positive {
+            color: #4CAF50;
+        }
+        .negative {
+            color: #F44336;
+        }
+        .neutral {
+            color: #666;
+        }
+        .profitability-summary {
+            margin-bottom: 20px;
+        }
+        .profitability-summary .summary-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .profitability-summary h4 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .profitability-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f5f7fa;
+            border-radius: 8px;
+        }
+        .stat-item .label {
+            color: #666;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+        }
+        .stat-item .value {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        .stat-item .value.positive {
+            color: #4CAF50;
+        }
+        .stat-item .value.negative {
+            color: #F44336;
+        }
+        .performer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .performer-item:last-child {
+            border-bottom: none;
+        }
+        .performer-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .performer-name {
+            font-weight: 500;
+            color: #333;
+        }
+        .performer-type {
+            font-size: 0.85em;
+            color: #666;
+        }
+        .performer-return {
+            text-align: right;
+        }
+        .performer-return .percentage {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        .performer-return .amount {
+            font-size: 0.85em;
+            color: #666;
+        }
+        .performers-section {
+            margin-top: 15px;
+        }
+        .performers-section h5 {
+            color: #333;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eee;
+        }
+        .performers-section h5.top-title {
+            border-bottom-color: #4CAF50;
+        }
+        .performers-section h5.bottom-title {
+            border-bottom-color: #F44336;
+        }
         @media (max-width: 768px) {
             header {
                 flex-direction: column;
@@ -253,6 +356,9 @@
             .investments-table {
                 display: block;
                 overflow-x: auto;
+            }
+            .profitability-stats {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -288,6 +394,11 @@
                 <p class="value" id="totalValue">R$ 0,00</p>
             </div>
             <div class="card">
+                <h3>Retorno Total</h3>
+                <p class="value" id="totalReturn">-</p>
+                <p class="return-percentage" id="totalReturnPercentage"></p>
+            </div>
+            <div class="card">
                 <h3>Total de Investimentos</h3>
                 <p class="value" id="totalInvestments">0</p>
             </div>
@@ -299,6 +410,7 @@
 
         <div class="tabs">
             <div class="tab active" data-tab="overview">Visao Geral</div>
+            <div class="tab" data-tab="profitability">Rentabilidade</div>
             <div class="tab" data-tab="investments">Investimentos</div>
             <div class="tab" data-tab="allocations">Alocacoes</div>
             <div class="tab" data-tab="transactions">Transacoes</div>
@@ -318,6 +430,51 @@
                         <canvas id="allocationComparisonChart"></canvas>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div id="profitability" class="tab-content">
+            <div class="profitability-summary">
+                <div class="summary-card">
+                    <h4>Resumo da Rentabilidade</h4>
+                    <div class="profitability-stats" id="profitabilityStats">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-section">
+                <div class="chart-card">
+                    <h3>Rentabilidade por Tipo de Investimento</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="profitabilityByTypeChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Top Performers</h3>
+                    <div id="topPerformersContainer">
+                        <div class="loading">Carregando...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="investments-section">
+                <h3>Rentabilidade por Investimento</h3>
+                <table class="investments-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Valor Inicial</th>
+                            <th>Valor Atual</th>
+                            <th>Retorno</th>
+                            <th>Retorno %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="profitabilityTableBody">
+                        <tr><td colspan="6" class="loading">Carregando...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
