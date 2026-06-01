@@ -103,7 +103,15 @@ public class ProfitabilityService
 
     /// <summary>
     /// Calculates profitability considering transactions (deposits, withdrawals, dividends)
-    /// Uses Money-Weighted Return approach
+    /// Uses Money-Weighted Return approach.
+    ///
+    /// Handles two regimes:
+    ///   * Open position  – net invested (initial + deposits - withdrawals) > 0 and there are still
+    ///                     units remaining. InitialValue in the DTO equals net invested; CurrentValue
+    ///                     is the latest market value; % is relative to net invested.
+    ///   * Fully liquidated – net invested &lt;= 0 or no units left. InitialValue in the DTO equals
+    ///                     the gross amount that went in (never negative); CurrentValue is 0;
+    ///                     the absolute return is realized (withdrawals + dividends - gross in).
     /// </summary>
     private InvestmentProfitabilityDto CalculateProfitabilityWithTransactions(Models.Investment investment)
     {
@@ -122,7 +130,6 @@ public class ProfitabilityService
         }
 
         var firstTransaction = transactions.First();
-        var lastTransaction = transactions.Last();
 
         // Determine the start date (earliest between first transaction and first history)
         var firstDate = firstTransaction.TransactionDate;
@@ -159,32 +166,68 @@ public class ProfitabilityService
             }
         }
 
-        decimal totalInvested = initialInvestmentValue + totalDeposits - totalWithdrawals;
+        decimal grossInvested = initialInvestmentValue + totalDeposits;
+        decimal netInvested = grossInvested - totalWithdrawals;
 
-        // Get current value from last history record or current investment value
+        // Detect whether the position has been fully liquidated. We consider it closed when
+        // the net invested amount has been driven to zero or below by withdrawals, or when
+        // the investment record itself shows no units / no market value left.
+        bool noUnits = !investment.Quantity.HasValue || investment.Quantity.Value <= 0;
+        bool fullyLiquidated = noUnits || netInvested <= 0;
+
+        if (fullyLiquidated)
+        {
+            // Position closed: realized P/L is everything that came out (withdrawals + dividends)
+            // minus everything that went in (initial + deposits). Use gross invested as the
+            // denominator for the percentage so the sign of the return is preserved.
+            decimal realizedReturn = (totalWithdrawals + totalDividends) - grossInvested;
+            decimal liquidatedReturnPercentage = grossInvested > 0
+                ? (realizedReturn / grossInvested) * 100
+                : 0;
+
+            var periodDays = (int)(lastDate - firstDate).TotalDays;
+
+            return new InvestmentProfitabilityDto
+            {
+                InvestmentId = investment.Id,
+                InvestmentName = investment.Name,
+                InvestmentTypeName = investment.InvestmentType?.Name ?? "Unknown",
+                InitialValue = grossInvested,
+                CurrentValue = 0,
+                AbsoluteReturn = realizedReturn,
+                ReturnPercentage = liquidatedReturnPercentage,
+                AnnualizedReturn = 0, // Position is closed, annualization is not meaningful
+                InvestmentPeriodDays = periodDays,
+                FirstRecordedDate = firstDate,
+                LastRecordedDate = lastDate
+            };
+        }
+
+        // Open position: use latest market value as current value.
         decimal currentValue = history.Any() ? history.Last().Value : investment.CurrentValue;
 
-        // Calculate returns
-        // Absolute return = (Current Value + Total Withdrawals + Total Dividends) - (Initial Investment + Total Deposits)
-        decimal absoluteReturn = (currentValue + totalWithdrawals + totalDividends) - (initialInvestmentValue + totalDeposits);
+        // Money-weighted absolute return: money out (current value + withdrawals + dividends)
+        // minus money in (initial + deposits). Equivalent to (currentValue - netInvested) + dividends.
+        decimal absoluteReturn = (currentValue + totalWithdrawals + totalDividends) - grossInvested;
 
-        // Return percentage = Absolute Return / Total Invested * 100
-        decimal returnPercentage = totalInvested != 0 ? (absoluteReturn / totalInvested) * 100 : 0;
+        decimal returnPercentage = netInvested > 0
+            ? (absoluteReturn / netInvested) * 100
+            : 0;
 
-        var periodDays = (int)(lastDate - firstDate).TotalDays;
-        var annualizedReturn = CalculateAnnualizedReturn(totalInvested, currentValue, periodDays);
+        var openPeriodDays = (int)(lastDate - firstDate).TotalDays;
+        var annualizedReturn = CalculateAnnualizedReturn(netInvested, currentValue, openPeriodDays);
 
         return new InvestmentProfitabilityDto
         {
             InvestmentId = investment.Id,
             InvestmentName = investment.Name,
             InvestmentTypeName = investment.InvestmentType?.Name ?? "Unknown",
-            InitialValue = totalInvested,
+            InitialValue = netInvested,
             CurrentValue = currentValue,
             AbsoluteReturn = absoluteReturn,
             ReturnPercentage = returnPercentage,
             AnnualizedReturn = annualizedReturn,
-            InvestmentPeriodDays = periodDays,
+            InvestmentPeriodDays = openPeriodDays,
             FirstRecordedDate = firstDate,
             LastRecordedDate = lastDate
         };
@@ -277,8 +320,15 @@ public class ProfitabilityService
             }
         }
 
-        var totalAbsoluteReturn = totalCurrentValue - totalInitialValue;
-        var totalReturnPercentage = totalInitialValue != 0 ? (totalAbsoluteReturn / totalInitialValue) * 100 : 0;
+        // Sum per-investment absolute returns instead of recomputing from totals.
+        // The simple (totalCurrentValue - totalInitialValue) formula ignores withdrawals
+        // and dividends on open positions, and gives a nonsensical negative for fully
+        // liquidated ones. The per-investment DTO already has the correct money-weighted
+        // absolute return for both regimes.
+        var totalAbsoluteReturn = investmentProfitabilities.Sum(p => p.AbsoluteReturn);
+        var totalReturnPercentage = totalInitialValue > 0
+            ? (totalAbsoluteReturn / totalInitialValue) * 100
+            : 0;
         var totalPeriodDays = earliestDate.HasValue && latestDate.HasValue
             ? (int)(latestDate.Value - earliestDate.Value).TotalDays
             : 0;

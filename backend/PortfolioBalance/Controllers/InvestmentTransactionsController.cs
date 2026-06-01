@@ -160,7 +160,64 @@ public class InvestmentTransactionsController : ControllerBase
         };
 
         _context.InvestmentTransactions.Add(transaction);
+
+        // Keep the investment's Quantity / CurrentValue in sync with the movement so that
+        // profitability calculations and the UI see a consistent closed/open state.
+        // A Withdrawal reduces the position, a Deposit increases it. We derive the quantity
+        // from Amount / UnitValue when the caller didn't provide it explicitly.
+        bool investmentStateChanged = false;
+        if (dto.Type == TransactionType.Withdrawal || dto.Type == TransactionType.Deposit)
+        {
+            decimal? quantity = dto.Quantity;
+            if (!quantity.HasValue && dto.UnitValue.HasValue && dto.UnitValue.Value > 0)
+            {
+                quantity = dto.Amount / dto.UnitValue.Value;
+            }
+
+            if (quantity.HasValue && quantity.Value > 0)
+            {
+                decimal currentQuantity = investment.Quantity ?? 0m;
+                decimal newQuantity = dto.Type == TransactionType.Withdrawal
+                    ? currentQuantity - quantity.Value
+                    : currentQuantity + quantity.Value;
+
+                // Clamp to zero on full liquidation to avoid negative quantities from rounding
+                if (newQuantity < 0m)
+                {
+                    newQuantity = 0m;
+                }
+
+                investment.Quantity = newQuantity;
+
+                decimal? referenceUnitValue = dto.UnitValue ?? investment.UnitValue;
+                if (referenceUnitValue.HasValue)
+                {
+                    investment.UnitValue = referenceUnitValue.Value;
+                }
+
+                investment.CurrentValue = newQuantity * (investment.UnitValue ?? 0m);
+                investment.LastUpdatedDate = transaction.TransactionDate;
+                investmentStateChanged = true;
+            }
+        }
+
         await _context.SaveChangesAsync();
+
+        // Record a history entry so the time series reflects the post-transaction state.
+        if (investmentStateChanged)
+        {
+            var history = new InvestmentHistory
+            {
+                InvestmentId = investment.Id,
+                Value = investment.CurrentValue,
+                UnitValue = investment.UnitValue,
+                Quantity = investment.Quantity,
+                RecordedDate = transaction.TransactionDate,
+                Notes = $"{transaction.Type} recorded via transaction"
+            };
+            _context.InvestmentHistories.Add(history);
+            await _context.SaveChangesAsync();
+        }
 
         var result = new InvestmentTransactionDto
         {
