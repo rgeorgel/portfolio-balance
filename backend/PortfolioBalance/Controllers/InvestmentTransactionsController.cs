@@ -163,8 +163,13 @@ public class InvestmentTransactionsController : ControllerBase
 
         // Keep the investment's Quantity / CurrentValue in sync with the movement so that
         // profitability calculations and the UI see a consistent closed/open state.
-        // A Withdrawal reduces the position, a Deposit increases it. We derive the quantity
-        // from Amount / UnitValue when the caller didn't provide it explicitly.
+        // CurrentValue is updated additively (Deposit adds the Amount, Withdrawal subtracts it)
+        // rather than recomputed as Quantity * UnitValue. The Q*UV formula only works when
+        // UnitValue is a per-unit market price (stocks/ETFs); for accumulating accounts
+        // (retirement, savings, CDB) the user treats Quantity as a marker and UnitValue as the
+        // running balance, so recomputing would overwrite the real value with the deposit-level
+        // unit price. UnitValue is intentionally left untouched here — the user (or the price
+        // feed) updates it via the Investment edit flow when it makes sense.
         bool investmentStateChanged = false;
         if (dto.Type == TransactionType.Withdrawal || dto.Type == TransactionType.Deposit)
         {
@@ -187,15 +192,19 @@ public class InvestmentTransactionsController : ControllerBase
                     newQuantity = 0m;
                 }
 
-                investment.Quantity = newQuantity;
+                decimal newCurrentValue = dto.Type == TransactionType.Withdrawal
+                    ? investment.CurrentValue - dto.Amount
+                    : investment.CurrentValue + dto.Amount;
 
-                decimal? referenceUnitValue = dto.UnitValue ?? investment.UnitValue;
-                if (referenceUnitValue.HasValue)
+                // Full liquidation (no units left) forces CurrentValue to 0 so the position
+                // disappears from totals even if rounding leaves a small residual.
+                if (newQuantity == 0m || newCurrentValue < 0m)
                 {
-                    investment.UnitValue = referenceUnitValue.Value;
+                    newCurrentValue = 0m;
                 }
 
-                investment.CurrentValue = newQuantity * (investment.UnitValue ?? 0m);
+                investment.Quantity = newQuantity;
+                investment.CurrentValue = newCurrentValue;
                 investment.LastUpdatedDate = transaction.TransactionDate;
                 investmentStateChanged = true;
             }
