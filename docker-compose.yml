@@ -1,47 +1,18 @@
-version: '3.8'
-
 services:
-  postgres:
-    image: postgres:15
-    container_name: portfoliobalance-db
-    environment:
-      POSTGRES_DB: portfoliobalance
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "7432:5432"
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: portfoliobalance-backend
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
       - ASPNETCORE_URLS=http://+:5000
-      - ConnectionStrings__DefaultConnection=Host=postgres;Database=portfoliobalance;Username=postgres;Password=postgres
-    ports:
-      - "5500:5000"
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION}
     restart: unless-stopped
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: portfoliobalance-frontend
-    ports:
-      - "8088:80"
     depends_on:
       - backend
     restart: unless-stopped
